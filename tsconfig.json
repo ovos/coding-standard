@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": false,
+    "lib": ["es6"],
+    "module": "commonjs",
+    "declaration": true
+  },
+  "include": ["index.ts", "tslint.ts"]
+}

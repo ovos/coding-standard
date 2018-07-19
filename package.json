@@ -1,0 +1,36 @@
+{
+  "name": "@ovos-media/coding-standard",
+  "version": "1.0.0",
+  "description": "ovos-media Coding Standard",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "author": "ovos",
+  "license": "MIT",
+  "repository": "https://github.com/ovos/coding-standard",
+  "homepage": "https://github.com/ovos/coding-standard",
+  "scripts": {
+    "prepublish": "yarn run build",
+    "lint": "tslint -p ./tsconfig.json",
+    "build": "tsc -p ./tsconfig.json",
+    "release": "standard-version"
+  },
+  "dependencies": {
+    "tslint-config-airbnb": "^5.9.2",
+    "tslint-react": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.5.2",
+    "@types/prettier": "^1.13.2",
+    "prettier": "^1.13.7",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
+  },
+  "files": [
+    "/index.js",
+    "/index.d.ts",
+    "/prettier.js",
+    "/prettier.d.ts",
+    "/tslint.js",
+    "/tslint.d.ts"
+  ]
+}
