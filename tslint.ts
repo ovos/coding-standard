@@ -52,7 +52,21 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
   'jsx-no-multiline-js': false,
 
   // additions
+  'no-console': true,
+  'no-unexpected-multiline': true,
+  'ter-arrow-body-style': [true, 'as needed'], // eslint arrow-body-style equivalent
   'no-for-in-array': true,
+
+  // comments
+  /**
+   * 1) the following rules which we once used with eslint seems not to be available for tslint:
+   * - no-mixed-operators
+   * - no-await-in-loop
+   * - no-case-declarations
+   *
+   * 2) we had "class-methods-use-this" enabled, considering enabling
+   * "prefer-function-over-method" as an equivalent rule
+   */
 });
 
 // copy rules to jsRules
