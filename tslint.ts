@@ -24,11 +24,11 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
     {
       esSpecCompliant: true, // disallow trailing comma on object and array rest and rest parameters
       multiline: { // modified to check everything except functions
-        objects: "always",
-        arrays: "always",
-        imports: "always",
-        exports: "always",
-        typeLiterals: "always",
+        objects: 'always',
+        arrays: 'always',
+        imports: 'always',
+        exports: 'always',
+        typeLiterals: 'always',
       },
       singleline: 'never',
     },
@@ -47,6 +47,11 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
   'no-this-assignment': [true, {'allow-destructuring': true}],
   'import-name': false, // from tslint-microsoft-contrib
   'object-shorthand-properties-first': false, // from tslint-consistent-codestyle
+  'ter-arrow-parens': [
+    true,
+    'as-needed',
+    { requireForBlockBody: false }, // for compatibility with prettier's arrowParens: 'avoid'
+  ],
 
   // differences from react ruleset
   'jsx-no-multiline-js': false,
