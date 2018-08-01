@@ -61,6 +61,7 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
   'no-unexpected-multiline': true,
   'ter-arrow-body-style': [true, 'as needed'], // eslint arrow-body-style equivalent
   'no-for-in-array': true,
+  'no-return-await': true,
 
   // comments
   /**
