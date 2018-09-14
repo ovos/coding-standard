@@ -8,7 +8,6 @@ const rulesReact = tslintReact.rules;
 const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbnb, rulesReact, {
   // differences from airbnb ruleset
   'no-increment-decrement': false,
-  'no-unused-variable': true,
   align: false,
   whitespace: [
     true,
