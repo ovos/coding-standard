@@ -51,6 +51,7 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
     'as-needed',
     { requireForBlockBody: false }, // for compatibility with prettier's arrowParens: 'avoid'
   ],
+  'no-boolean-literal-compare': false,
 
   // differences from react ruleset
   'jsx-no-multiline-js': false,
@@ -61,6 +62,7 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
   'ter-arrow-body-style': [true, 'as needed'], // eslint arrow-body-style equivalent
   'no-for-in-array': true,
   'no-return-await': true,
+  'no-unused': [true, 'ignore-parameters'], // instead of "noUnusedLocals" in typescript
 
   // comments
   /**
