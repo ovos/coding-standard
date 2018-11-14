@@ -52,9 +52,18 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
     { requireForBlockBody: false }, // for compatibility with prettier's arrowParens: 'avoid'
   ],
   'no-boolean-literal-compare': false,
+  // added ignore-bound-class-methods for compatibility with prettier always adding semicolons there
+  // https://github.com/prettier/prettier/issues/1444
+  semicolon: [true, 'always', 'ignore-bound-class-methods'],
+  // allow-single-concat to allow simple cast to string ('' + foo)
+  'prefer-template': [true, 'allow-single-concat'],
 
   // differences from react ruleset
   'jsx-no-multiline-js': false,
+  // https://github.com/palantir/tslint-react/issues/96
+  // https://stackoverflow.com/questions/43968779/are-lambda-in-jsx-attributes-an-anti-pattern/43968902#43968902
+  'jsx-no-lambda': false,
+  'jsx-boolean-value': false,
 
   // additions
   'no-console': true,
