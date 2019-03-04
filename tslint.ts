@@ -42,6 +42,16 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
     ignoreStrings: true,
     ignoreTemplateLiterals: true,
   }],
+  'function-name': [
+    true,
+    {
+      'function-regex':         /^[a-zA-Z$][a-zA-Z\d]+$/, // allow React function components
+      'method-regex':           /^[a-z$][a-zA-Z\d]+$/,
+      'private-method-regex':   /^[a-z$][a-zA-Z\d]+$/,
+      'protected-method-regex': /^[a-z$][a-zA-Z\d]+$/,
+      'static-method-regex':    /^[a-z$][a-zA-Z\d]+$/,
+    },
+  ],
   'variable-name': false,
   'no-this-assignment': [true, {'allow-destructuring': true}],
   'import-name': false, // from tslint-microsoft-contrib
