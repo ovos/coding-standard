@@ -7,8 +7,9 @@ const rulesReact = tslintReact.rules;
 
 const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbnb, rulesReact, {
   // differences from airbnb ruleset
-  'no-increment-decrement': false,
+  'prefer-array-literal': [true, {'allow-size-argument': true}],
   align: false,
+  'increment-decrement': false,
   whitespace: [
     true,
     'check-branch',
@@ -95,25 +96,13 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
    */
 });
 
-// copy rules to jsRules
-// until this is merged https://github.com/palantir/tslint/pull/3641
-const jsRules = Object.assign({}, rules);
-// delete typescriptOnly rules
-delete jsRules['prefer-array-literal'];
-delete jsRules['no-function-constructor-with-string-args'];
-delete jsRules['no-increment-decrement'];
-delete jsRules['no-unused-variable'];
-delete jsRules['no-boolean-literal-compare'];
-delete jsRules['function-name'];
-delete jsRules['import-name'];
-
 const config: tslint.Configuration.RawConfigFile = {
   extends: [
     'tslint-config-airbnb',
     'tslint-react',
   ],
   rules: rules,
-  jsRules: jsRules,
+  jsRules: true,
 };
 
 export = config;

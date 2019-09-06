@@ -15,15 +15,16 @@
     "release": "standard-version"
   },
   "dependencies": {
-    "tslint-config-airbnb": "^5.11.0",
-    "tslint-react": "^3.6.0"
+    "tslint-config-airbnb": "git+https://github.com/ovos/tslint-config-airbnb.git#5.11.1-mod.0",
+    "tslint-consistent-codestyle": "^1.15.1",
+    "tslint-react": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^10.11.7",
-    "@types/prettier": "^1.13.2",
-    "prettier": "^1.14.3",
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.2"
+    "@types/node": "^12.7.4",
+    "@types/prettier": "^1.18.2",
+    "prettier": "^1.18.2",
+    "tslint": "^5.19.0",
+    "typescript": "^3.6.2"
   },
   "files": [
     "/index.js",
