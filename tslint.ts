@@ -1,9 +1,70 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import * as coreModules from 'resolve/lib/core';
 import * as tslint from 'tslint';
 import * as tslintAirbnb from 'tslint-config-airbnb';
 const tslintReact = require('tslint-react');
 
 const rulesAirbnb = tslintAirbnb.rules;
 const rulesReact = tslintReact.rules;
+
+// prepare regex for node core modules for 'ordered-imports' rule
+const modules = Object.entries(coreModules as Record<string, boolean>).reduce(
+  (acc: string[], [module, enabled]) => {
+    enabled && !module.startsWith('_') && acc.push(module);
+    return acc;
+  },
+  []
+);
+const coreModulesRegex = '^(' + modules.join('|') + ')$';
+
+// prepare import groups for 'ordered-imports' rule
+const projectPackageJson = path.join(process.cwd(), 'package.json');
+let dependenciesRegex;
+if (fs.existsSync(projectPackageJson)) {
+  const packageJson = require(projectPackageJson);
+  const dependencies = [
+    ...Object.keys(packageJson.dependencies || {}),
+    ...Object.keys(packageJson.devDependencies || {}),
+  ];
+
+  if (dependencies.length) {
+    dependenciesRegex = '^(' + dependencies.join('|').replace(/\./g, '\\\\.') + ')(/|$)';
+  }
+}
+
+const importGroups = [
+  {
+    name: 'aliased paths, which begin with tilde in our convention',
+    match: '^~',
+    order: 30,
+  },
+  {
+    name: 'parent directories',
+    match: '^\\.\\.',
+    order: 50,
+  },
+  {
+    name: 'current directory',
+    match: '^\\.',
+    order: 60,
+  },
+  {
+    name: 'built-in node modules',
+    match: coreModulesRegex,
+    order: 10,
+  },
+  dependenciesRegex && {
+    name: 'dependencies',
+    match: dependenciesRegex,
+    order: 20,
+  },
+  {
+    name: 'the rest, incl. typescript absolute imports',
+    match: '\\.*',
+    order: 40,
+  },
+].filter(Boolean); // filter out empty dependencies group
 
 const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbnb, rulesReact, {
   // differences from airbnb ruleset
@@ -87,6 +148,11 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
   'no-for-in-array': true,
   'no-return-await': true,
   'no-unused': [true, 'ignore-parameters'], // instead of "noUnusedLocals" in typescript
+  'ordered-imports': [true, {
+    'named-imports-order': 'lowercase-last',
+    'grouped-imports': true,
+    groups: importGroups,
+  }],
 
   // comments
   /**
