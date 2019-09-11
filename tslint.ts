@@ -54,20 +54,17 @@ const importGroups = [
     match: coreModulesRegex,
     order: 10,
   },
-].concat(
-  dependenciesRegex
-    ? {
-      name: 'dependencies',
-      match: dependenciesRegex,
-      order: 20,
-    }
-    : [],
+  dependenciesRegex && {
+    name: 'dependencies',
+    match: dependenciesRegex,
+    order: 20,
+  },
   {
     name: 'the rest, incl. typescript absolute imports',
     match: '\\.*',
     order: 40,
-  }
-);
+  },
+].filter(Boolean); // filter out empty dependencies group
 
 const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbnb, rulesReact, {
   // differences from airbnb ruleset
