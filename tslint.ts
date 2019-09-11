@@ -7,8 +7,9 @@ const rulesReact = tslintReact.rules;
 
 const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbnb, rulesReact, {
   // differences from airbnb ruleset
-  'no-increment-decrement': false,
+  'prefer-array-literal': [true, {'allow-size-argument': true}],
   align: false,
+  'increment-decrement': false,
   whitespace: [
     true,
     'check-branch',
@@ -74,6 +75,10 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
   // https://stackoverflow.com/questions/43968779/are-lambda-in-jsx-attributes-an-anti-pattern/43968902#43968902
   'jsx-no-lambda': false,
   'jsx-boolean-value': false,
+  // disabled because of false positives and being unmaintained (and being incompatible with prettier)
+  // https://github.com/palantir/tslint-react/pull/194#issuecomment-478307364
+  // https://github.com/palantir/tslint-react/issues/79#issuecomment-289923337
+  'jsx-wrap-multiline': false,
 
   // additions
   'no-console': true,
@@ -95,25 +100,13 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
    */
 });
 
-// copy rules to jsRules
-// until this is merged https://github.com/palantir/tslint/pull/3641
-const jsRules = Object.assign({}, rules);
-// delete typescriptOnly rules
-delete jsRules['prefer-array-literal'];
-delete jsRules['no-function-constructor-with-string-args'];
-delete jsRules['no-increment-decrement'];
-delete jsRules['no-unused-variable'];
-delete jsRules['no-boolean-literal-compare'];
-delete jsRules['function-name'];
-delete jsRules['import-name'];
-
 const config: tslint.Configuration.RawConfigFile = {
   extends: [
     'tslint-config-airbnb',
     'tslint-react',
   ],
   rules: rules,
-  jsRules: jsRules,
+  jsRules: true,
 };
 
 export = config;
