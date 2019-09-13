@@ -35,7 +35,7 @@ if (fs.existsSync(projectPackageJson)) {
 
 const importGroups = [
   {
-    name: 'aliased paths, which begin with tilde in our convention',
+    name: 'aliased paths (which begin with tilde [~] in our convention)',
     match: '^~',
     order: 30,
   },
@@ -60,7 +60,7 @@ const importGroups = [
     order: 20,
   },
   {
-    name: 'the rest, incl. typescript absolute imports',
+    name: 'absolute imports',
     match: '\\.*',
     order: 40,
   },
