@@ -118,6 +118,7 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
   'no-this-assignment': [true, {'allow-destructuring': true}],
   'import-name': false, // from tslint-microsoft-contrib
   'object-shorthand-properties-first': false, // from tslint-consistent-codestyle
+  'ter-prefer-arrow-callback': [true, {'allowNamedFunctions': true}], // suits React functional components better
   'ter-arrow-parens': [
     true,
     'as-needed',
