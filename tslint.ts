@@ -156,7 +156,7 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
   }],
 
   // for the tslint-react-hooks plugin
-  'react-hooks-nesting': true
+  'react-hooks-nesting': true,
 
   // comments
   /**
