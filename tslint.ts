@@ -155,6 +155,9 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
     groups: importGroups,
   }],
 
+  // for the tslint-react-hooks plugin
+  'react-hooks-nesting': "error"
+
   // comments
   /**
    * 1) the following rules which we once used with eslint seems not to be available for tslint:
@@ -171,6 +174,7 @@ const config: tslint.Configuration.RawConfigFile = {
   extends: [
     'tslint-config-airbnb',
     'tslint-react',
+    'tslint-react-hooks'
   ],
   rules: rules,
   jsRules: true,
