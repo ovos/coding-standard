@@ -7,7 +7,7 @@ const config: prettier.Options = {
   // https://github.com/prettier/prettier/issues/4160
   // https://github.com/prettier/prettier/issues/4298
   // https://github.com/prettier/prettier/issues/4658
-  printWidth: 120,
+  printWidth: 100,
   singleQuote: true,
   trailingComma: "es5",
   // neither "avoid" nor "always" plays well with tslint's "ter-arrow-parens"
