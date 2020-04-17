@@ -119,11 +119,7 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
   'import-name': false, // from tslint-microsoft-contrib
   'object-shorthand-properties-first': false, // from tslint-consistent-codestyle
   'ter-prefer-arrow-callback': [true, {'allowNamedFunctions': true}], // suits React functional components better
-  'ter-arrow-parens': [
-    true,
-    'as-needed',
-    { requireForBlockBody: false }, // for compatibility with prettier's arrowParens: 'avoid'
-  ],
+  'ter-arrow-parens': false,
   'no-boolean-literal-compare': false,
   // added ignore-bound-class-methods for compatibility with prettier always adding semicolons there
   // https://github.com/prettier/prettier/issues/1444
