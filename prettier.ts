@@ -10,10 +10,6 @@ const config: prettier.Options = {
   printWidth: 100,
   singleQuote: true,
   trailingComma: "es5",
-  // neither "avoid" nor "always" plays well with tslint's "ter-arrow-parens"
-  // with "as-needed" + "requireForBlockBody": true...
-  // but of two evils, choose the least (disable requireForBlockBody in tslint)
-  arrowParens: "avoid",
 };
 
 export default config;
