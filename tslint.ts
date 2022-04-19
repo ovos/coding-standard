@@ -151,6 +151,21 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
     groups: importGroups,
   }],
 
+  'file-name-casing': [true, {
+    // index.ts / index.tsx are fine as lower-cased
+    "index.tsx?": "ignore",
+    // routes are not considered to be "components" per-se but rather wrap and re-export
+    "routes.tsx?": "ignore",
+    // Subscribers may or may not contain JSX so we ignore them
+    "\.*Subscriber.tsx?": "ignore",
+    // hooks and HoCs are special cases
+    "with\.*.tsx?": "ignore",
+    "use\.*.tsx?": "ignore",
+    ".tsx$": "pascal-case",
+    ".ts$": "camel-case",
+    ".less$": "camel-case",
+  }],
+
   // for the tslint-react-hooks plugin
   'react-hooks-nesting': true,
 
