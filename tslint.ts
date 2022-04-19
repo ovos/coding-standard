@@ -162,7 +162,7 @@ const rules : tslint.Configuration.RawRulesConfig = Object.assign({}, rulesAirbn
     "with\.*.tsx?": "ignore",
     "use\.*.tsx?": "ignore",
     ".tsx$": "pascal-case",
-    ".ts$": "camel-case",
+    ".ts$": "ignore",
     ".less$": "camel-case",
   }],
 
