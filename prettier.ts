@@ -9,7 +9,7 @@ const config: prettier.Options = {
   // https://github.com/prettier/prettier/issues/4658
   printWidth: 100,
   singleQuote: true,
-  trailingComma: "es5",
+  trailingComma: 'es5',
 };
 
 export default config;
