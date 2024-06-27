@@ -33,6 +33,7 @@ The upgrade to ESLint v9 and typescript-eslint v7 is planned for the next major 
   - `allow` otherwise.
 - `indent` (default: `2`): number of spaces to use for indentation or `tab` for tabs
 - `jest` (default: `false`): enable Jest-specific rules
+- `mocha` (default: `false`): enable Mocha-specific rules
 - `react` (default: `false`): enable React-specific rules
 - `vitest` (default: `false`): enable Vitest-specific rules
 
