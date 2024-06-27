@@ -31,6 +31,9 @@ The upgrade to ESLint v9 and typescript-eslint v7 is planned for the next major 
 - `console`: `ban`, `ban-log` or `allow` - whether to ban or allow console usage. Defaults to:
   - `ban-log` (which only allows `console.error()`, `console.warn()` and `console.info()`) when `react: true`,
   - `allow` otherwise.
+- `disableTypeChecked`: List ts files which should be linted, but are not covered by `tsconfig.json`
+  to avoid `Parsing error (...) TSConfig does not include this file`. [read more &raquo;](https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file)
+  Example: `['dangerfile.ts', '.storybook/*.ts?(x)']`
 - `indent` (default: `2`): number of spaces to use for indentation or `tab` for tabs
 - `jest` (default: `false`): enable Jest-specific rules
 - `mocha` (default: `false`): enable Mocha-specific rules

@@ -1,6 +1,6 @@
 {
   "name": "@ovos-media/coding-standard",
-  "version": "2.0.0-rc.0",
+  "version": "2.0.0-rc.1",
   "description": "ovos-media coding standard",
   "main": "index.js",
   "types": "index.d.ts",
@@ -43,6 +43,7 @@
   },
   "files": [
     "/eslint.js",
+    "/eslint.d.ts",
     "/index.js",
     "/index.d.ts",
     "/prettier.js",

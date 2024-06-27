@@ -11,6 +11,9 @@ type CustomizeOptions = {
   // Whether to ban or allow console usage.
   // Defaults to 'ban-log' (which allows 'console.error()', 'console.warn()' and 'console.info()') when 'react': true, 'allow' otherwise.
   console?: 'ban' | 'ban-log' | 'allow';
+  // List ts files which should be linted, but are not covered by tsconfig.json to avoid 'Parsing error (...) TSConfig does not include this file'
+  // https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
+  disableTypeChecked?: string[];
   // Number of spaces to use for indentation, or 'tab' to use tabs (default: 2)
   indent?: number | 'tab';
   // Whether to enable Jest-specific rules. (default: false)
@@ -33,6 +36,7 @@ const shared: Linter.RulesRecord = {
  *
  * @param {Object} options
  * @param {'ban' | 'ban-log' | 'allow'} [options.console] - Whether to ban or allow console usage. Defaults to 'ban-log' (which allows 'console.error()', 'console.warn()' and 'console.info()') when 'react': true, 'allow' otherwise.
+ * @param {string[]} [options.disableTypeChecked] - List ts files which should be linted, but are not covered by tsconfig.json to avoid 'Parsing error (...) TSConfig does not include this file' https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
  * @param {number | 'tab'} [options.indent=2] - Number of spaces to use for indentation, or 'tab' to use tabs.
  * @param {boolean} [options.jest=false] - Whether to enable Jest-specific rules.
  * @param {boolean} [options.mocha=false] - Whether to enable Mocha-specific rules.
@@ -41,7 +45,14 @@ const shared: Linter.RulesRecord = {
  * @returns {import('eslint').Linter.FlatConfig[]} requires @types/eslint to be installed for FlatConfig type to appear on Linter - https://stackoverflow.com/a/75684357/3729316
  */
 function customize(options: CustomizeOptions = {}) {
-  const { indent = 2, jest = false, mocha = false, react = false, vitest = false } = options;
+  const {
+    disableTypeChecked = [],
+    indent = 2,
+    jest = false,
+    mocha = false,
+    react = false,
+    vitest = false,
+  } = options;
   const consoleUsage = options.console ?? (react ? 'ban-log' : 'allow');
 
   const config: Linter.FlatConfig[] = [
@@ -91,7 +102,12 @@ function customize(options: CustomizeOptions = {}) {
     {
       // list ts files which should be linted, but are not covered by tsconfig.json to avoid 'Parsing error (...) TSConfig does not include this file'
       // https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
-      files: ['*.config.ts', '*.setup.ts'], // e.g. jest.config.ts, vite.config.ts, vitest.setup.ts
+      files: [
+        // defaults will cover e.g. jest.config.ts, vite.config.ts, vitest.setup.ts
+        '*.config.ts',
+        '*.setup.ts',
+        ...disableTypeChecked,
+      ],
       languageOptions: { parserOptions: { project: null } }, // this is what basically the 'disable-type-checked' config does, when 'recommended-type-checked' is not used
     },
   ];
