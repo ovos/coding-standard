@@ -16,6 +16,12 @@ type CustomizeOptions = {
   disableTypeChecked?: string[];
   // Number of spaces to use for indentation, or 'tab' to use tabs (default: 2)
   indent?: number | 'tab';
+  // Directory where test files are located. (default: `spec`)
+  // Can be also configured as `{spec,tests}` to include multiple directories.
+  // In addition, files in `__tests__` folders and files with `*.spec.*`/`*.test.*` filenames are picked up as test files, even outside of `testsDir`.
+  testsDir?: string;
+  // Whether to enable Cypress-specific rules. (default: false)
+  cypress?: boolean;
   // Whether to enable Jest-specific rules. (default: false)
   jest?: boolean;
   // Whether to enable Mocha-specific rules. (default: false)
@@ -38,6 +44,8 @@ const shared: Linter.RulesRecord = {
  * @param {'ban' | 'ban-log' | 'allow'} [options.console] - Whether to ban or allow console usage. Defaults to 'ban-log' (which allows 'console.error()', 'console.warn()' and 'console.info()') when 'react': true, 'allow' otherwise.
  * @param {string[]} [options.disableTypeChecked] - List ts files which should be linted, but are not covered by tsconfig.json to avoid 'Parsing error (...) TSConfig does not include this file' https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
  * @param {number | 'tab'} [options.indent=2] - Number of spaces to use for indentation, or 'tab' to use tabs.
+ * @param {string} [options.testsDir=spec] - Directory where test files are located. Can be also configured as `{spec,tests}` to include multiple directories. In addition, files in `__tests__` folders and files with `*.spec.*`/`*.test.*` filenames are picked up as test files, even outside of `testsDir`.
+ * @param {boolean} [options.cypress=false] - Whether to enable Cypress-specific rules.
  * @param {boolean} [options.jest=false] - Whether to enable Jest-specific rules.
  * @param {boolean} [options.mocha=false] - Whether to enable Mocha-specific rules.
  * @param {boolean} [options.react=false] - Whether to enable React-specific rules.
@@ -48,6 +56,8 @@ function customize(options: CustomizeOptions = {}) {
   const {
     disableTypeChecked = [],
     indent = 2,
+    testsDir = 'spec',
+    cypress = false,
     jest = false,
     mocha = false,
     react = false,
@@ -61,6 +71,7 @@ function customize(options: CustomizeOptions = {}) {
       ignores: ['node_modules', 'build', 'coverage', '.yalc', 'vite.config.ts.*'],
     },
     {
+      name: 'recommended/js',
       files: ['**/*.?(m|c)[jt]s?(x)'],
       rules: js.configs.recommended.rules, // 'eslint:recommended' rules
       languageOptions: {
@@ -74,6 +85,7 @@ function customize(options: CustomizeOptions = {}) {
     },
     // common settings for typescript files
     {
+      name: 'recommended/ts',
       files: ['**/*.?(m|c)ts?(x)'],
       languageOptions: {
         parser: tsParser,
@@ -100,6 +112,7 @@ function customize(options: CustomizeOptions = {}) {
       },
     },
     {
+      name: 'workaround-for-files-not-included-in-tsconfig',
       // list ts files which should be linted, but are not covered by tsconfig.json to avoid 'Parsing error (...) TSConfig does not include this file'
       // https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
       files: [
@@ -112,127 +125,10 @@ function customize(options: CustomizeOptions = {}) {
     },
   ];
 
-  if (jest) {
-    const jestPlugin = require('eslint-plugin-jest');
-    config.push({
-      files: [
-        'spec/**/*.?(c|m)[jt]s?(x)',
-        '**/__tests__/**/*.?(c|m)[jt]s?(x)',
-        '**/*.{spec,test}.?(c|m)[jt]s?(x)',
-      ],
-      languageOptions: {
-        globals: {
-          ...globals.jest,
-          DB: 'readonly',
-          GQL: 'readonly',
-          Setup: 'readonly',
-          app: 'readonly',
-        },
-      },
-      plugins: {
-        jest: jestPlugin,
-      },
-      rules: {
-        // flat config is not supported by eslint-plugin-jest yet - https://github.com/jest-community/eslint-plugin-jest/issues/1408
-        ...jestPlugin.configs.recommended.rules,
-        // the recommended set is too strict for us. Disable rules which we do not want.
-        // https://github.com/jest-community/eslint-plugin-jest#rules
-        'jest/expect-expect': 'off',
-        'jest/no-alias-methods': 'off',
-        'jest/no-conditional-expect': 'off',
-        'jest/no-disabled-tests': 'off',
-        'jest/no-standalone-expect': [
-          'error',
-          {
-            additionalTestBlockFunctions: [
-              // expects in before/after hooks are perfectly fine
-              'beforeAll',
-              'beforeEach',
-              'afterEach',
-              'afterAll',
-              // custom helpers to run tests conditionally
-              'testif',
-              'itif',
-              'testskipif',
-              'itskipif',
-            ],
-          },
-        ],
-        // allow titles to be parameterized - using variables or ternaries
-        'jest/valid-title': [
-          'error',
-          { ignoreTypeOfDescribeName: true, ignoreTypeOfTestName: true },
-        ],
-        // additional rules
-        'no-console': 'error',
-      },
-    });
-  }
-
-  if (vitest) {
-    const vitestPlugin = require('eslint-plugin-vitest');
-    config.push({
-      files: [
-        'spec/**/*.?(c|m)[jt]s?(x)',
-        '**/__tests__/**/*.?(c|m)[jt]s?(x)',
-        '**/*.{spec,test}.?(c|m)[jt]s?(x)',
-      ],
-      languageOptions: {
-        globals: vitestPlugin.environments.env.globals,
-      },
-      plugins: {
-        vitest: vitestPlugin,
-      },
-      rules: {
-        // https://github.com/veritem/eslint-plugin-vitest#rules
-        ...vitestPlugin.configs.recommended.rules,
-        // allow titles to be parameterized - using variables or ternaries
-        'vitest/valid-title': ['error', { ignoreTypeOfDescribeName: true }],
-        // additional rules
-        'vitest/no-focused-tests': 'error',
-        'no-console': 'error',
-      },
-    });
-  }
-
-  if (mocha) {
-    const mochaPlugin = require('eslint-plugin-mocha');
-    config.push(
-      {
-        files: [
-          'spec/**/*.?(c|m)[jt]s',
-          '**/__tests__/**/*.?(c|m)[jt]s',
-          '**/*.{spec,test}.?(c|m)[jt]s',
-        ],
-        languageOptions: {
-          globals: globals.mocha,
-        },
-        plugins: {
-          mocha: mochaPlugin,
-        },
-        rules: {
-          // https://github.com/lo1tuma/eslint-plugin-mocha#rules
-          ...mochaPlugin.configs.flat.recommended.rules,
-          'mocha/no-exclusive-tests': 'error', // the rule is set to 'warn' in the recommended config
-          'mocha/no-skipped-tests': 'off', // the rule is set to 'warn' in the recommended config, but we don't need it
-          // not compatible with https://www.npmjs.com/package/mocha-each and https://mochajs.org/#dynamically-generating-tests
-          'mocha/no-setup-in-describe': 'off',
-          // mocha prefers function expressions https://mochajs.org/#arrow-functions
-          // https://github.com/lo1tuma/eslint-plugin-mocha/blob/HEAD/docs/rules/prefer-arrow-callback.md
-          'prefer-arrow-callback': 'off',
-          'mocha/prefer-arrow-callback': 'error',
-        },
-      },
-      {
-        // folder with snapshots generated by https://www.npmjs.com/package/snap-shot-it
-        ignores: ['__snapshots__'],
-      }
-    );
-  }
-
   config.push(
     // our rules and overrides (1/3: js files)
     {
+      name: 'overrides/js',
       files: ['**/*.?(m|c)js?(x)'],
       rules: {
         // ** eslint:recommended overrides:
@@ -252,6 +148,7 @@ function customize(options: CustomizeOptions = {}) {
     },
     // our rules and overrides (2/3: ts files)
     {
+      name: 'overrides/ts',
       files: ['**/*.?(m|c)ts?(x)'],
       rules: {
         // ** typescript-eslint:recommended overrides:
@@ -307,6 +204,7 @@ function customize(options: CustomizeOptions = {}) {
     },
     // our rules and overrides (3/3: all files)
     {
+      name: 'overrides/js-ts',
       files: ['**/*.?(m|c)[jt]s?(x)'],
       plugins: {
         import: importPlugin,
@@ -487,6 +385,7 @@ function customize(options: CustomizeOptions = {}) {
     // our rules and overrides (react 1/2: tsx only)
     config.push(
       {
+        name: 'react/tsx',
         files: ['**/*.?(m|c)tsx'],
         rules: {
           // allow i.a. `type Props = {}` in react components
@@ -499,6 +398,7 @@ function customize(options: CustomizeOptions = {}) {
       },
       // our rules and overrides (react 2/2: jsx+tsx)
       {
+        name: 'react/jsx-tsx',
         files: ['**/*.?(m|c)[jt]sx'],
         languageOptions: {
           parserOptions: {
@@ -560,6 +460,7 @@ function customize(options: CustomizeOptions = {}) {
 
   // file naming conventions
   config.push({
+    name: 'file-naming-conventions',
     plugins: {
       'check-file': checkFilePlugin,
     },
@@ -575,6 +476,160 @@ function customize(options: CustomizeOptions = {}) {
       ],
     },
   });
+
+  // patterns to extra (helper) files in testsDir, which are not test suites
+  const ignoreInTestsDir = [`${testsDir}/**/_*`, `${testsDir}/**/*.skip.*`];
+
+  if (jest) {
+    const jestPlugin = require('eslint-plugin-jest');
+    config.push({
+      name: 'jest',
+      files: [
+        `${testsDir}/**/*.?(c|m)[jt]s?(x)`,
+        '**/__tests__/**/*.?(c|m)[jt]s?(x)',
+        '**/*.{spec,test}.?(c|m)[jt]s?(x)',
+      ],
+      languageOptions: {
+        globals: {
+          ...globals.jest,
+          DB: 'readonly',
+          GQL: 'readonly',
+          Setup: 'readonly',
+          app: 'readonly',
+        },
+      },
+      plugins: {
+        jest: jestPlugin,
+      },
+      rules: {
+        // flat config is not supported by eslint-plugin-jest yet - https://github.com/jest-community/eslint-plugin-jest/issues/1408
+        ...jestPlugin.configs.recommended.rules,
+        // the recommended set is too strict for us. Disable rules which we do not want.
+        // https://github.com/jest-community/eslint-plugin-jest#rules
+        'jest/expect-expect': 'off',
+        'jest/no-alias-methods': 'off',
+        'jest/no-conditional-expect': 'off',
+        'jest/no-disabled-tests': 'off',
+        'jest/no-standalone-expect': [
+          'error',
+          {
+            additionalTestBlockFunctions: [
+              // expects in before/after hooks are perfectly fine
+              'beforeAll',
+              'beforeEach',
+              'afterEach',
+              'afterAll',
+              // custom helpers to run tests conditionally
+              'testif',
+              'itif',
+              'testskipif',
+              'itskipif',
+            ],
+          },
+        ],
+        // allow titles to be parameterized - using variables or ternaries
+        'jest/valid-title': [
+          'error',
+          { ignoreTypeOfDescribeName: true, ignoreTypeOfTestName: true },
+        ],
+        // additional rules
+        'no-console': 'error',
+      },
+    });
+  }
+
+  if (vitest) {
+    const vitestPlugin = require('eslint-plugin-vitest');
+    config.push({
+      name: 'vitest',
+      files: [
+        `${testsDir}/**/*.?(c|m)[jt]s?(x)`,
+        '**/__tests__/**/*.?(c|m)[jt]s?(x)',
+        '**/*.{spec,test}.?(c|m)[jt]s?(x)',
+      ],
+      languageOptions: {
+        globals: vitestPlugin.environments.env.globals,
+      },
+      plugins: {
+        vitest: vitestPlugin,
+      },
+      rules: {
+        // https://github.com/veritem/eslint-plugin-vitest#rules
+        ...vitestPlugin.configs.recommended.rules,
+        // allow titles to be parameterized - using variables or ternaries
+        'vitest/valid-title': ['error', { ignoreTypeOfDescribeName: true }],
+        // additional rules
+        'vitest/no-focused-tests': 'error',
+        'no-console': 'error',
+      },
+    });
+  }
+
+  // cypress is based on mocha, so also enable mocha-specific rules when cypress is enabled
+  if (mocha || cypress) {
+    const mochaPlugin = require('eslint-plugin-mocha');
+    config.push(
+      {
+        name: 'mocha',
+        files: [
+          `${testsDir}/**/*.?(c|m)[jt]s`,
+          '**/__tests__/**/*.?(c|m)[jt]s',
+          '**/*.{spec,test}.?(c|m)[jt]s',
+        ],
+        languageOptions: {
+          globals: globals.mocha,
+        },
+        plugins: {
+          mocha: mochaPlugin,
+        },
+        rules: {
+          // https://github.com/lo1tuma/eslint-plugin-mocha#rules
+          ...mochaPlugin.configs.flat.recommended.rules,
+          'mocha/no-exclusive-tests': 'error', // the rule is set to 'warn' in the recommended config
+          'mocha/no-skipped-tests': 'off', // the rule is set to 'warn' in the recommended config, but we don't need it
+          // not compatible with https://www.npmjs.com/package/mocha-each and https://mochajs.org/#dynamically-generating-tests
+          'mocha/no-setup-in-describe': 'off',
+          // mocha prefers function expressions https://mochajs.org/#arrow-functions
+          // https://github.com/lo1tuma/eslint-plugin-mocha/blob/HEAD/docs/rules/prefer-arrow-callback.md
+          'prefer-arrow-callback': 'off',
+          'mocha/prefer-arrow-callback': 'error',
+        },
+      },
+      {
+        // folder with snapshots generated by https://www.npmjs.com/package/snap-shot-it
+        ignores: ['__snapshots__'],
+      },
+      {
+        name: 'mocha/ignore',
+        files: ignoreInTestsDir,
+        rules: {
+          'mocha/no-exports': 'off',
+        },
+      },
+    );
+  }
+
+  if (cypress) {
+    const cypressPlugin = require('eslint-plugin-cypress/flat');
+    config.push({
+      name: 'cypress',
+      files: [
+        `${testsDir}/**/*.?(c|m)[jt]s`,
+        '**/__tests__/**/*.?(c|m)[jt]s',
+        '**/*.{spec,test}.?(c|m)[jt]s',
+      ],
+      ...cypressPlugin.configs.recommended,
+      rules: {
+        ...cypressPlugin.configs.recommended.rules,
+        // Even though cypress is based on mocha, and uses `this` in regular functions to access the test context,
+        // we won't force using regular functions in cypress tests, as most of the cases can be covered with `cy.get` command.
+        // https://docs.cypress.io/guides/core-concepts/variables-and-aliases#Avoiding-the-use-of-this
+        // Still when `this` context needs to be accessed, a dev can easily convert an arrow function to a regular function.
+        // This rule comes from our default config for `mocha`.
+        'mocha/no-mocha-arrows': 'off',
+      },
+    });
+  }
 
   return config;
 }
