@@ -16,8 +16,8 @@ type CustomizeOptions = {
   disableTypeChecked?: string[];
   // Number of spaces to use for indentation, or 'tab' to use tabs (default: 2)
   indent?: number | 'tab';
-  // Directory where test files are located. (default: `spec`)
-  // Can be also configured as `{spec,tests}` to include multiple directories.
+  // Directory where test files are located. (default: `{spec,test,tests}`)
+  // Example: `src` for single directory, `{spec,tests}` to include multiple directories.
   // In addition, files in `__tests__` folders and files with `*.spec.*`/`*.test.*` filenames are picked up as test files, even outside of `testsDir`.
   testsDir?: string;
   // Whether to enable Cypress-specific rules. (default: false)
@@ -44,7 +44,7 @@ const shared: Linter.RulesRecord = {
  * @param {'ban' | 'ban-log' | 'allow'} [options.console] - Whether to ban or allow console usage. Defaults to 'ban-log' (which allows 'console.error()', 'console.warn()' and 'console.info()') when 'react': true, 'allow' otherwise.
  * @param {string[]} [options.disableTypeChecked] - List ts files which should be linted, but are not covered by tsconfig.json to avoid 'Parsing error (...) TSConfig does not include this file' https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
  * @param {number | 'tab'} [options.indent=2] - Number of spaces to use for indentation, or 'tab' to use tabs.
- * @param {string} [options.testsDir=spec] - Directory where test files are located. Can be also configured as `{spec,tests}` to include multiple directories. In addition, files in `__tests__` folders and files with `*.spec.*`/`*.test.*` filenames are picked up as test files, even outside of `testsDir`.
+ * @param {string} [options.testsDir={spec,test,tests}] - Directory where test files are located. Example: `src` for single directory, `{spec,tests}` to include multiple directories. In addition, files in `__tests__` folders and files with `*.spec.*`/`*.test.*` filenames are picked up as test files, even outside of `testsDir`.
  * @param {boolean} [options.cypress=false] - Whether to enable Cypress-specific rules.
  * @param {boolean} [options.jest=false] - Whether to enable Jest-specific rules.
  * @param {boolean} [options.mocha=false] - Whether to enable Mocha-specific rules.
@@ -56,7 +56,7 @@ function customize(options: CustomizeOptions = {}) {
   const {
     disableTypeChecked = [],
     indent = 2,
-    testsDir = 'spec',
+    testsDir = '{spec,test,tests}',
     cypress = false,
     jest = false,
     mocha = false,

@@ -35,7 +35,8 @@ The upgrade to ESLint v9 and typescript-eslint v7 is planned for the next major 
   to avoid `Parsing error (...) TSConfig does not include this file`. [read more &raquo;](https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file)
   Example: `['dangerfile.ts', '.storybook/*.ts?(x)']`
 - `indent` (default: `2`): number of spaces to use for indentation or `tab` for tabs
-- `testsDir` (default: `spec`): directory where test files are located. Can be also configured as `{spec,tests}` to include multiple directories.
+- `testsDir` (default: `{spec,test,tests}`): directory where test files are located.
+  Example: `src` for single directory, `{spec,tests}` to include multiple directories.
   In addition, files in `__tests__` folders and files with `*.spec.*`/`*.test.*` filenames are picked up as test files, even outside of `testsDir`.
 - `cypress` (default: `false`): enable Cypress-specific rules
 - `jest` (default: `false`): enable Jest-specific rules
