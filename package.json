@@ -1,6 +1,6 @@
 {
   "name": "@ovos-media/coding-standard",
-  "version": "2.0.0-rc.2",
+  "version": "2.0.0-rc.3",
   "description": "ovos-media coding standard",
   "main": "index.js",
   "types": "index.d.ts",
@@ -21,14 +21,14 @@
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.0",
     "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-check-file": "^2.7.1",
+    "eslint-plugin-check-file": "2.6.2",
     "eslint-plugin-cypress": "^3.3.0",
     "eslint-plugin-import": "npm:eslint-plugin-import-x@0.2.0",
     "eslint-plugin-jest": "28.4.0",
     "eslint-plugin-mocha": "^10.4.3",
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-vitest": "0.3.22",
+    "eslint-plugin-vitest": "0.3.10",
     "globals": "^13.24.0"
   },
   "devDependencies": {
@@ -40,7 +40,7 @@
     "typescript": "5.4.5"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=16.10"
   },
   "files": [
     "/eslint.js",
