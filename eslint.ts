@@ -558,6 +558,7 @@ function customize(options: CustomizeOptions = {}) {
         ...vitestPlugin.configs.recommended.rules,
         // allow titles to be parameterized - using variables or ternaries
         'vitest/valid-title': ['error', { ignoreTypeOfDescribeName: true }],
+        'vitest/prefer-to-be': 'off', // this override can be removed after eslint-plugin-vitest is updated to 0.3.19+ https://github.com/veritem/eslint-plugin-vitest/pull/332
         // additional rules
         'vitest/no-focused-tests': 'error',
         'no-console': 'error',
