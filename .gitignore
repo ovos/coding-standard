@@ -16,3 +16,4 @@ lerna-debug.log*
 
 /*.js
 /*.d.ts
+!/types.d.ts

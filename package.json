@@ -1,7 +1,7 @@
 {
   "name": "@ovos-media/coding-standard",
-  "version": "1.5.1",
-  "description": "ovos-media Coding Standard",
+  "version": "2.0.0-rc.2",
+  "description": "ovos-media coding standard",
   "main": "index.js",
   "types": "index.d.ts",
   "author": "ovos",
@@ -10,30 +10,44 @@
   "homepage": "https://github.com/ovos/coding-standard",
   "scripts": {
     "prepublish": "yarn run build",
-    "lint": "tslint -p ./tsconfig.json",
+    "lint": "yarn run eslint .",
     "build": "tsc -p ./tsconfig.json",
     "release": "standard-version"
   },
   "dependencies": {
-    "resolve": "^1.12.0",
-    "tslint-config-airbnb": "git+https://github.com/ovos/tslint-config-airbnb.git#5.11.1-mod.0",
-    "tslint-consistent-codestyle": "^1.15.1",
-    "tslint-react": "^5.0.0",
-    "tslint-react-hooks": "^2.2.2"
+    "@stylistic/eslint-plugin": "^1.8.1",
+    "@types/eslint": "8.56.10",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-check-file": "^2.7.1",
+    "eslint-plugin-cypress": "^3.3.0",
+    "eslint-plugin-import": "npm:eslint-plugin-import-x@0.2.0",
+    "eslint-plugin-jest": "28.4.0",
+    "eslint-plugin-mocha": "^10.4.3",
+    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-vitest": "0.3.22",
+    "globals": "^13.24.0"
   },
   "devDependencies": {
-    "@types/node": "^13.11.1",
-    "@types/prettier": "^2.0.0",
-    "prettier": "^2.0.4",
-    "tslint": "^5.20.0",
-    "typescript": "^3.6.2"
+    "@types/eslint-plugin-mocha": "10.4.0",
+    "@types/eslint__js": "8.42.3",
+    "@types/node": "20.14.1",
+    "@types/prettier": "3.0.0",
+    "prettier": "3.3.0",
+    "typescript": "5.4.5"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "files": [
+    "/eslint.js",
+    "/eslint.d.ts",
     "/index.js",
     "/index.d.ts",
     "/prettier.js",
-    "/prettier.d.ts",
-    "/tslint.js",
-    "/tslint.d.ts"
+    "/prettier.d.ts"
   ]
 }
