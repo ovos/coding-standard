@@ -22,8 +22,8 @@ The configuration is based on the recommended rulesets from [ESLint](https://esl
 
 It also includes [ESLint Stylistic](https://eslint.style/) which replaces deprecated rules from eslint and typescript-eslint.
 
-Currently, it uses ESLint v8 and typescript-eslint v6.
-The upgrade to ESLint v9 and typescript-eslint v7 is planned for the next major release.
+Currently, it uses ESLint v8 and typescript-eslint v6. (nodejs v16.10+ required)
+The upgrade to ESLint v9 and typescript-eslint v8 is planned for the next major release.
 
 
 `@ovos-media/coding-standard/eslint` exports a function that accepts an object with the following options:
