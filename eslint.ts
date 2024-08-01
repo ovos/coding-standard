@@ -311,7 +311,7 @@ function customize(options: CustomizeOptions = {}) {
         '@stylistic/member-delimiter-style': 'error',
         '@stylistic/no-extra-semi': 'error',
         '@stylistic/no-mixed-spaces-and-tabs': 'error',
-        '@stylistic/no-multiple-empty-lines': 'error',
+        '@stylistic/no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0, maxBOF: 0 }], // default is { max: 2 }
         '@stylistic/no-trailing-spaces': 'error',
         '@stylistic/no-whitespace-before-property': 'error',
         '@stylistic/object-curly-spacing': ['error', 'always'],
