@@ -432,6 +432,7 @@ function customize(options: CustomizeOptions = {}) {
           '@stylistic/jsx-indent': ['error', indent],
           '@stylistic/jsx-indent-props': ['error', indent],
           '@stylistic/jsx-props-no-multi-spaces': 'error',
+          '@stylistic/jsx-quotes': 'error',
           '@stylistic/jsx-self-closing-comp': 'error', // replaces `react/self-closing-comp`, even though it's not deprecated yet
           '@stylistic/jsx-tag-spacing': [
             'error',
