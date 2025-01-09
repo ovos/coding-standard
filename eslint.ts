@@ -34,7 +34,8 @@ type CustomizeOptions = {
 
 // shared settings - for js + ts equivalent rules
 const shared: Linter.RulesRecord = {
-  'no-unused-vars': ['error', { varsIgnorePattern: '^_', args: 'none' }],
+  'no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }],
+  'no-unused-vars': ['error', { varsIgnorePattern: '^_', args: 'none', caughtErrors: 'none' }],
 };
 
 /**
@@ -91,7 +92,7 @@ function customize(options: CustomizeOptions = {}) {
         parser: tsParser,
         parserOptions: {
           // https://typescript-eslint.io/packages/parser/
-          project: true,
+          projectService: true,
         },
       },
       plugins: {
@@ -121,7 +122,7 @@ function customize(options: CustomizeOptions = {}) {
         '*.setup.ts',
         ...disableTypeChecked,
       ],
-      languageOptions: { parserOptions: { project: null } }, // this is what basically the 'disable-type-checked' config does, when 'recommended-type-checked' is not used
+      languageOptions: { parserOptions: { projectService: null } }, // this is what basically the 'disable-type-checked' config does, when 'recommended-type-checked' is not used
     },
   ];
 
@@ -132,6 +133,7 @@ function customize(options: CustomizeOptions = {}) {
       files: ['**/*.?(m|c)js?(x)'],
       rules: {
         // ** eslint:recommended overrides:
+        'no-unused-expressions': shared['no-unused-expressions'],
         'no-unused-vars': shared['no-unused-vars'],
         // ** end eslint:recommended overrides
 
@@ -158,10 +160,14 @@ function customize(options: CustomizeOptions = {}) {
         '@typescript-eslint/no-explicit-any': 'off',
         // allow @ts-ignore
         '@typescript-eslint/ban-ts-comment': 'off',
-        // even though `no-unused-vars` is already reconfigured, this needs to be reconfigured again for typescript files, with the same options repeated
-        '@typescript-eslint/no-unused-vars': shared['no-unused-vars'],
         // we still sometimes want to use dynamic, sync `require()` instead of `await import()`
-        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
+        // allow `interface I extends Base<Param> {}` syntax
+        '@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
+        // even though the rules blow are already reconfigured for eslint:recommended,
+        // they need to be reconfigured again for typescript files, with the same options repeated
+        '@typescript-eslint/no-unused-expressions': shared['no-unused-expressions'],
+        '@typescript-eslint/no-unused-vars': shared['no-unused-vars'],
         // ** end typescript-eslint:recommended overrides
 
         // additional rules
@@ -248,50 +254,30 @@ function customize(options: CustomizeOptions = {}) {
           indent,
           {
             SwitchCase: 1,
-            // indenting parameters on multiline function calls is sometimes broken
-            CallExpression: { arguments: 'off' },
-            // @typescript-eslint/indent is broken and unmaintained,
-            // but there is no other, better option available at the moment. (except the prettier itself?)
-            // Eslint cuts ties with stylistic lints while leaving them in broken state
-            // https://github.com/eslint/eslint/issues/17522
-            // Maybe it'll be fixed one day at https://github.com/eslint-stylistic/eslint-stylistic/ 🙄
-            //
-            // Apply workarounds posted in https://github.com/typescript-eslint/typescript-eslint/issues/1824 et al.
+            // only enable when 'indent' is 2 spaces, as it's broken otherwise -> https://github.com/eslint-stylistic/eslint-stylistic/issues/514
+            offsetTernaryExpressions: indent === 2,
             ignoredNodes: [
-              // https://github.com/typescript-eslint/typescript-eslint/issues/1824#issuecomment-1378327382
-              'PropertyDefinition[decorators]',
-              'FunctionExpression[params]:has(Identifier[decorators])',
+              // copied list of ignoredNodes from https://github.com/eslint-stylistic/eslint-stylistic/blob/main/packages/eslint-plugin/configs/customize.ts
+              // which just disables indent rules for cases not properly supported by the plugin
+              // (issues have been carried over from the original indent and @typescript-eslint/indent rules
+              // and now are being addressed occasionally, one by one, in eslint-stylistic)
               'TSUnionType',
               'TSIntersectionType',
-              // https://github.com/typescript-eslint/typescript-eslint/issues/1824#issuecomment-943783564
-              // Generics are not properly indented
               'TSTypeParameterInstantiation',
+              'FunctionExpression > .params[decorators.length > 0]',
+              'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
+              // some more exclusions are needed:
+              // does not indent multiline interface extends (conflicts with prettier)
               'TSInterfaceHeritage',
-              // checking indentation of multiline ternary expression is broken
-              // https://github.com/eslint/eslint/issues/14058
+              '.superTypeArguments',
+              // multiline generic type parameters in function calls
+              'CallExpression > .typeArguments',
+              // checking indentation of multiline ternary expression is broken in some cases (i.a. nested function calls)
               'ConditionalExpression *',
-              // breaking on nested arrow functions
+              // still breaking on nested (chained) arrow functions () => () => {}
               'ArrowFunctionExpression',
               // https://stackoverflow.com/questions/52178093/ignore-the-indentation-in-a-template-literal-with-the-eslint-indent-rule
-              'TemplateLiteral *',
-              // ignore jsx indentation - copied from https://github.com/eslint-stylistic/eslint-stylistic/blob/main/packages/eslint-plugin/configs/customize.ts
-              // use jsx-indent rule instead
-              'JSXElement',
-              'JSXElement > *',
-              'JSXAttribute',
-              'JSXIdentifier',
-              'JSXNamespacedName',
-              'JSXMemberExpression',
-              'JSXSpreadAttribute',
-              'JSXExpressionContainer',
-              'JSXOpeningElement',
-              'JSXClosingElement',
-              'JSXFragment',
-              'JSXOpeningFragment',
-              'JSXClosingFragment',
-              'JSXText',
-              'JSXEmptyExpression',
-              'JSXSpreadChild',
+              'TemplateLiteral *', // even after some fixes in @stylistic, still not handling multiline expressions in template literals properly
             ],
           },
         ],
@@ -390,10 +376,7 @@ function customize(options: CustomizeOptions = {}) {
         rules: {
           // allow i.a. `type Props = {}` in react components
           // https://github.com/typescript-eslint/typescript-eslint/issues/2063#issuecomment-675156492
-          '@typescript-eslint/ban-types': [
-            'error',
-            { extendDefaults: true, types: { '{}': false } },
-          ],
+          '@typescript-eslint/no-empty-object-type': ['error', { allowWithName: 'Props$' }],
         },
       },
       // our rules and overrides (react 2/2: jsx+tsx)
@@ -429,7 +412,6 @@ function customize(options: CustomizeOptions = {}) {
           '@stylistic/jsx-equals-spacing': 'error',
           '@stylistic/jsx-first-prop-new-line': 'error',
           '@stylistic/jsx-function-call-newline': 'error',
-          '@stylistic/jsx-indent': ['error', indent],
           '@stylistic/jsx-indent-props': ['error', indent],
           '@stylistic/jsx-props-no-multi-spaces': 'error',
           '@stylistic/jsx-quotes': 'error',
@@ -540,7 +522,7 @@ function customize(options: CustomizeOptions = {}) {
   }
 
   if (vitest) {
-    const vitestPlugin = require('eslint-plugin-vitest');
+    const vitestPlugin = require('@vitest/eslint-plugin');
     config.push({
       name: 'vitest',
       files: [
