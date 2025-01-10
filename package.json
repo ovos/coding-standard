@@ -9,13 +9,12 @@
   "repository": "https://github.com/ovos/coding-standard",
   "homepage": "https://github.com/ovos/coding-standard",
   "scripts": {
-    "prepublish": "yarn build",
+    "prepublish": "npm run build",
     "lint": "eslint .",
     "build": "tsc -p ./tsconfig.json"
   },
   "dependencies": {
     "@stylistic/eslint-plugin": "^2.12.1",
-    "@types/eslint": "^9.6.1",
     "@typescript-eslint/eslint-plugin": "^8.19.1",
     "@typescript-eslint/parser": "^8.19.1",
     "@typescript-eslint/utils": "^8.19.1",
@@ -33,13 +32,13 @@
   },
   "devDependencies": {
     "@types/eslint-plugin-mocha": "10.4.0",
-    "@types/node": "20.17.10",
+    "@types/node": "22.10.5",
     "@types/prettier": "3.0.0",
     "prettier": "3.4.2",
     "typescript": "5.7.2"
   },
   "engines": {
-    "node": ">=16.10"
+    "node": ">=18.18"
   },
   "files": [
     "/eslint.js",

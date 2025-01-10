@@ -51,7 +51,7 @@ const shared: Linter.RulesRecord = {
  * @param {boolean} [options.mocha=false] - Whether to enable Mocha-specific rules.
  * @param {boolean} [options.react=false] - Whether to enable React-specific rules.
  * @param {boolean} [options.vitest=false] - Whether to enable Vitest-specific rules.
- * @returns {import('eslint').Linter.FlatConfig[]} requires @types/eslint to be installed for FlatConfig type to appear on Linter - https://stackoverflow.com/a/75684357/3729316
+ * @returns {import('eslint').Linter.Config[]}
  */
 function customize(options: CustomizeOptions = {}) {
   const {
@@ -66,7 +66,7 @@ function customize(options: CustomizeOptions = {}) {
   } = options;
   const consoleUsage = options.console ?? (react ? 'ban-log' : 'allow');
 
-  const config: Linter.FlatConfig[] = [
+  const config: Linter.Config[] = [
     // common settings for all files
     {
       ignores: ['node_modules', 'build', 'coverage', '.yalc', 'vite.config.ts.*'],
@@ -98,7 +98,7 @@ function customize(options: CustomizeOptions = {}) {
       plugins: {
         '@typescript-eslint': { rules: tsPlugin.rules as any },
         import: importPlugin,
-      } satisfies Linter.FlatConfig['plugins'],
+      } satisfies Linter.Config['plugins'],
       settings: {
         // `import-x` prefix is hardcoded in `eslint-plugin-import-x` to read its settings, ignores the alias defined in `plugins`
         'import-x/resolver': { typescript: { alwaysTryTypes: true } },
@@ -474,7 +474,7 @@ function customize(options: CustomizeOptions = {}) {
       ],
       languageOptions: {
         globals: {
-          ...globals.jest,
+          ...jestPlugin.environments.globals.globals,
           DB: 'readonly',
           GQL: 'readonly',
           Setup: 'readonly',
@@ -485,7 +485,6 @@ function customize(options: CustomizeOptions = {}) {
         jest: jestPlugin,
       },
       rules: {
-        // flat config is not supported by eslint-plugin-jest yet - https://github.com/jest-community/eslint-plugin-jest/issues/1408
         ...jestPlugin.configs.recommended.rules,
         // the recommended set is too strict for us. Disable rules which we do not want.
         // https://github.com/jest-community/eslint-plugin-jest#rules
@@ -554,18 +553,13 @@ function customize(options: CustomizeOptions = {}) {
     const mochaPlugin = require('eslint-plugin-mocha');
     config.push(
       {
+        ...mochaPlugin.configs.flat.recommended,
         name: 'mocha',
         files: [
           `${testsDir}/**/*.?(c|m)[jt]s`,
           '**/__tests__/**/*.?(c|m)[jt]s',
           '**/*.{spec,test}.?(c|m)[jt]s',
         ],
-        languageOptions: {
-          globals: globals.mocha,
-        },
-        plugins: {
-          mocha: mochaPlugin,
-        },
         rules: {
           // https://github.com/lo1tuma/eslint-plugin-mocha#rules
           ...mochaPlugin.configs.flat.recommended.rules,
@@ -596,13 +590,13 @@ function customize(options: CustomizeOptions = {}) {
   if (cypress) {
     const cypressPlugin = require('eslint-plugin-cypress/flat');
     config.push({
+      ...cypressPlugin.configs.recommended,
       name: 'cypress',
       files: [
         `${testsDir}/**/*.?(c|m)[jt]s`,
         '**/__tests__/**/*.?(c|m)[jt]s',
         '**/*.{spec,test}.?(c|m)[jt]s',
       ],
-      ...cypressPlugin.configs.recommended,
       rules: {
         ...cypressPlugin.configs.recommended.rules,
         // Even though cypress is based on mocha, and uses `this` in regular functions to access the test context,
