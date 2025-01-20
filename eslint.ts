@@ -5,6 +5,7 @@ import * as tsParser from '@typescript-eslint/parser';
 import { Linter } from 'eslint';
 import checkFilePlugin from 'eslint-plugin-check-file';
 import * as importPlugin from 'eslint-plugin-import'; // aliased to eslint-plugin-import-x https://github.com/un-ts/eslint-plugin-import-x
+import perfectionist from 'eslint-plugin-perfectionist';
 import globals from 'globals';
 
 type CustomizeOptions = {
@@ -82,6 +83,21 @@ function customize(options: CustomizeOptions = {}) {
       plugins: {
         // https://eslint.style/ providing replacement for formatting rules, which are now deprecated in eslint and @typescript-eslint
         '@stylistic': { rules: stylistic.rules },
+        perfectionist,
+      },
+      settings: {
+        // https://perfectionist.dev/guide/getting-started#settings
+        perfectionist: {
+          type: 'custom',
+          ignoreCase: false,
+          // 'perfectionist' uses .localeCompare() which by default which sorts '123..AaBbCc..'
+          // we want to put uppercase before lowercase, the rest stays the same (esp. symbols)
+          // Alphabet from 'perfectionist' could be used, such as
+          // `Alphabet.generateRecommendedAlphabet().sortByNaturalSort('en-US').placeAllWithCaseBeforeAllWithOtherCase('uppercase').getCharacters()`
+          // but that contains 128k chars, which is unnecessarily large
+          // so recreated only the needed part of the alphabet, with uppercase before lowercase
+          alphabet: '_-.@/#~$0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+        },
       },
     },
     // common settings for typescript files
@@ -163,7 +179,10 @@ function customize(options: CustomizeOptions = {}) {
         // we still sometimes want to use dynamic, sync `require()` instead of `await import()`
         '@typescript-eslint/no-require-imports': 'off',
         // allow `interface I extends Base<Param> {}` syntax
-        '@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
+        '@typescript-eslint/no-empty-object-type': [
+          'error',
+          { allowInterfaces: 'with-single-extends' },
+        ],
         // even though the rules blow are already reconfigured for eslint:recommended,
         // they need to be reconfigured again for typescript files, with the same options repeated
         '@typescript-eslint/no-unused-expressions': shared['no-unused-expressions'],
@@ -355,6 +374,11 @@ function customize(options: CustomizeOptions = {}) {
         'no-param-reassign': 'error',
         'object-shorthand': 'error',
         'one-var': ['error', 'never'],
+        'perfectionist/sort-named-exports': ['error', { groupKind: 'types-first' }],
+        'perfectionist/sort-named-imports': [
+          'error',
+          { ignoreAlias: true, groupKind: 'types-first' },
+        ],
         'prefer-arrow-callback': ['error', { allowNamedFunctions: true }],
         ...(consoleUsage !== 'allow' && {
           'no-console':
@@ -583,7 +607,7 @@ function customize(options: CustomizeOptions = {}) {
         rules: {
           'mocha/no-exports': 'off',
         },
-      },
+      }
     );
   }
 
