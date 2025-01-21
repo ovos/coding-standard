@@ -400,7 +400,10 @@ function customize(options: CustomizeOptions = {}) {
         rules: {
           // allow i.a. `type Props = {}` in react components
           // https://github.com/typescript-eslint/typescript-eslint/issues/2063#issuecomment-675156492
-          '@typescript-eslint/no-empty-object-type': ['error', { allowWithName: 'Props$' }],
+          '@typescript-eslint/no-empty-object-type': [
+            'error',
+            { allowInterfaces: 'with-single-extends', allowWithName: 'Props$' },
+          ],
         },
       },
       // our rules and overrides (react 2/2: jsx+tsx)
