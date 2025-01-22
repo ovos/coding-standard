@@ -1,6 +1,6 @@
 {
   "name": "@ovos-media/coding-standard",
-  "version": "2.0.2",
+  "version": "3.0.0-rc.3",
   "description": "ovos-media coding standard",
   "main": "index.js",
   "types": "index.d.ts",
@@ -9,38 +9,37 @@
   "repository": "https://github.com/ovos/coding-standard",
   "homepage": "https://github.com/ovos/coding-standard",
   "scripts": {
-    "prepublish": "yarn run build",
-    "lint": "yarn run eslint .",
-    "build": "tsc -p ./tsconfig.json",
-    "release": "standard-version"
+    "prepublish": "npm run build",
+    "lint": "eslint .",
+    "build": "tsc -p ./tsconfig.json"
   },
   "dependencies": {
-    "@stylistic/eslint-plugin": "^1.8.1",
-    "@types/eslint": "8.56.10",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.57.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-check-file": "2.6.2",
-    "eslint-plugin-cypress": "^3.3.0",
-    "eslint-plugin-import": "npm:eslint-plugin-import-x@0.2.0",
-    "eslint-plugin-jest": "28.4.0",
-    "eslint-plugin-mocha": "^10.4.3",
-    "eslint-plugin-react": "^7.34.2",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-vitest": "0.3.10",
-    "globals": "^13.24.0"
+    "@stylistic/eslint-plugin": "^2.12.1",
+    "@typescript-eslint/eslint-plugin": "^8.19.1",
+    "@typescript-eslint/parser": "^8.19.1",
+    "@typescript-eslint/utils": "^8.19.1",
+    "@vitest/eslint-plugin": "^1.1.24",
+    "eslint": "^9.17.0",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-check-file": "^2.8.0",
+    "eslint-plugin-cypress": "^4.1.0",
+    "eslint-plugin-import": "npm:eslint-plugin-import-x@^4.6.1",
+    "eslint-plugin-jest": "^28.10.0",
+    "eslint-plugin-mocha": "^10.5.0",
+    "eslint-plugin-perfectionist": "^4.6.0",
+    "eslint-plugin-react": "^7.37.3",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "globals": "^15.14.0"
   },
   "devDependencies": {
     "@types/eslint-plugin-mocha": "10.4.0",
-    "@types/eslint__js": "8.42.3",
-    "@types/node": "20.14.1",
+    "@types/node": "22.10.5",
     "@types/prettier": "3.0.0",
-    "prettier": "3.3.0",
-    "typescript": "5.4.5"
+    "prettier": "3.4.2",
+    "typescript": "5.7.2"
   },
   "engines": {
-    "node": ">=16.10"
+    "node": ">=18.18"
   },
   "files": [
     "/eslint.js",

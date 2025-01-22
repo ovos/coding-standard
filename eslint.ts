@@ -5,6 +5,7 @@ import * as tsParser from '@typescript-eslint/parser';
 import { Linter } from 'eslint';
 import checkFilePlugin from 'eslint-plugin-check-file';
 import * as importPlugin from 'eslint-plugin-import'; // aliased to eslint-plugin-import-x https://github.com/un-ts/eslint-plugin-import-x
+import perfectionist from 'eslint-plugin-perfectionist';
 import globals from 'globals';
 
 type CustomizeOptions = {
@@ -34,7 +35,8 @@ type CustomizeOptions = {
 
 // shared settings - for js + ts equivalent rules
 const shared: Linter.RulesRecord = {
-  'no-unused-vars': ['error', { varsIgnorePattern: '^_', args: 'none' }],
+  'no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }],
+  'no-unused-vars': ['error', { varsIgnorePattern: '^_', args: 'none', caughtErrors: 'none' }],
 };
 
 /**
@@ -50,7 +52,7 @@ const shared: Linter.RulesRecord = {
  * @param {boolean} [options.mocha=false] - Whether to enable Mocha-specific rules.
  * @param {boolean} [options.react=false] - Whether to enable React-specific rules.
  * @param {boolean} [options.vitest=false] - Whether to enable Vitest-specific rules.
- * @returns {import('eslint').Linter.FlatConfig[]} requires @types/eslint to be installed for FlatConfig type to appear on Linter - https://stackoverflow.com/a/75684357/3729316
+ * @returns {import('eslint').Linter.Config[]}
  */
 function customize(options: CustomizeOptions = {}) {
   const {
@@ -65,7 +67,7 @@ function customize(options: CustomizeOptions = {}) {
   } = options;
   const consoleUsage = options.console ?? (react ? 'ban-log' : 'allow');
 
-  const config: Linter.FlatConfig[] = [
+  const config: Linter.Config[] = [
     // common settings for all files
     {
       ignores: ['node_modules', 'build', 'coverage', '.yalc', 'vite.config.ts.*'],
@@ -81,6 +83,21 @@ function customize(options: CustomizeOptions = {}) {
       plugins: {
         // https://eslint.style/ providing replacement for formatting rules, which are now deprecated in eslint and @typescript-eslint
         '@stylistic': { rules: stylistic.rules },
+        perfectionist,
+      },
+      settings: {
+        // https://perfectionist.dev/guide/getting-started#settings
+        perfectionist: {
+          type: 'custom',
+          ignoreCase: false,
+          // 'perfectionist' uses .localeCompare() which by default which sorts '123..AaBbCc..'
+          // we want to put uppercase before lowercase, the rest stays the same (esp. symbols)
+          // Alphabet from 'perfectionist' could be used, such as
+          // `Alphabet.generateRecommendedAlphabet().sortByNaturalSort('en-US').placeAllWithCaseBeforeAllWithOtherCase('uppercase').getCharacters()`
+          // but that contains 128k chars, which is unnecessarily large
+          // so recreated only the needed part of the alphabet, with uppercase before lowercase
+          alphabet: '_-.@/#~$0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+        },
       },
     },
     // common settings for typescript files
@@ -91,13 +108,13 @@ function customize(options: CustomizeOptions = {}) {
         parser: tsParser,
         parserOptions: {
           // https://typescript-eslint.io/packages/parser/
-          project: true,
+          projectService: true,
         },
       },
       plugins: {
         '@typescript-eslint': { rules: tsPlugin.rules as any },
         import: importPlugin,
-      } satisfies Linter.FlatConfig['plugins'],
+      } satisfies Linter.Config['plugins'],
       settings: {
         // `import-x` prefix is hardcoded in `eslint-plugin-import-x` to read its settings, ignores the alias defined in `plugins`
         'import-x/resolver': { typescript: { alwaysTryTypes: true } },
@@ -121,7 +138,7 @@ function customize(options: CustomizeOptions = {}) {
         '*.setup.ts',
         ...disableTypeChecked,
       ],
-      languageOptions: { parserOptions: { project: null } }, // this is what basically the 'disable-type-checked' config does, when 'recommended-type-checked' is not used
+      languageOptions: { parserOptions: { projectService: null } }, // this is what basically the 'disable-type-checked' config does, when 'recommended-type-checked' is not used
     },
   ];
 
@@ -132,6 +149,7 @@ function customize(options: CustomizeOptions = {}) {
       files: ['**/*.?(m|c)js?(x)'],
       rules: {
         // ** eslint:recommended overrides:
+        'no-unused-expressions': shared['no-unused-expressions'],
         'no-unused-vars': shared['no-unused-vars'],
         // ** end eslint:recommended overrides
 
@@ -158,10 +176,17 @@ function customize(options: CustomizeOptions = {}) {
         '@typescript-eslint/no-explicit-any': 'off',
         // allow @ts-ignore
         '@typescript-eslint/ban-ts-comment': 'off',
-        // even though `no-unused-vars` is already reconfigured, this needs to be reconfigured again for typescript files, with the same options repeated
-        '@typescript-eslint/no-unused-vars': shared['no-unused-vars'],
         // we still sometimes want to use dynamic, sync `require()` instead of `await import()`
-        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
+        // allow `interface I extends Base<Param> {}` syntax
+        '@typescript-eslint/no-empty-object-type': [
+          'error',
+          { allowInterfaces: 'with-single-extends' },
+        ],
+        // even though the rules blow are already reconfigured for eslint:recommended,
+        // they need to be reconfigured again for typescript files, with the same options repeated
+        '@typescript-eslint/no-unused-expressions': shared['no-unused-expressions'],
+        '@typescript-eslint/no-unused-vars': shared['no-unused-vars'],
         // ** end typescript-eslint:recommended overrides
 
         // additional rules
@@ -248,50 +273,30 @@ function customize(options: CustomizeOptions = {}) {
           indent,
           {
             SwitchCase: 1,
-            // indenting parameters on multiline function calls is sometimes broken
-            CallExpression: { arguments: 'off' },
-            // @typescript-eslint/indent is broken and unmaintained,
-            // but there is no other, better option available at the moment. (except the prettier itself?)
-            // Eslint cuts ties with stylistic lints while leaving them in broken state
-            // https://github.com/eslint/eslint/issues/17522
-            // Maybe it'll be fixed one day at https://github.com/eslint-stylistic/eslint-stylistic/ 🙄
-            //
-            // Apply workarounds posted in https://github.com/typescript-eslint/typescript-eslint/issues/1824 et al.
+            // only enable when 'indent' is 2 spaces, as it's broken otherwise -> https://github.com/eslint-stylistic/eslint-stylistic/issues/514
+            offsetTernaryExpressions: indent === 2,
             ignoredNodes: [
-              // https://github.com/typescript-eslint/typescript-eslint/issues/1824#issuecomment-1378327382
-              'PropertyDefinition[decorators]',
-              'FunctionExpression[params]:has(Identifier[decorators])',
+              // copied list of ignoredNodes from https://github.com/eslint-stylistic/eslint-stylistic/blob/main/packages/eslint-plugin/configs/customize.ts
+              // which just disables indent rules for cases not properly supported by the plugin
+              // (issues have been carried over from the original indent and @typescript-eslint/indent rules
+              // and now are being addressed occasionally, one by one, in eslint-stylistic)
               'TSUnionType',
               'TSIntersectionType',
-              // https://github.com/typescript-eslint/typescript-eslint/issues/1824#issuecomment-943783564
-              // Generics are not properly indented
               'TSTypeParameterInstantiation',
+              'FunctionExpression > .params[decorators.length > 0]',
+              'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
+              // some more exclusions are needed:
+              // does not indent multiline interface extends (conflicts with prettier)
               'TSInterfaceHeritage',
-              // checking indentation of multiline ternary expression is broken
-              // https://github.com/eslint/eslint/issues/14058
+              '.superTypeArguments',
+              // multiline generic type parameters in function calls
+              'CallExpression > .typeArguments',
+              // checking indentation of multiline ternary expression is broken in some cases (i.a. nested function calls)
               'ConditionalExpression *',
-              // breaking on nested arrow functions
+              // still breaking on nested (chained) arrow functions () => () => {}
               'ArrowFunctionExpression',
               // https://stackoverflow.com/questions/52178093/ignore-the-indentation-in-a-template-literal-with-the-eslint-indent-rule
-              'TemplateLiteral *',
-              // ignore jsx indentation - copied from https://github.com/eslint-stylistic/eslint-stylistic/blob/main/packages/eslint-plugin/configs/customize.ts
-              // use jsx-indent rule instead
-              'JSXElement',
-              'JSXElement > *',
-              'JSXAttribute',
-              'JSXIdentifier',
-              'JSXNamespacedName',
-              'JSXMemberExpression',
-              'JSXSpreadAttribute',
-              'JSXExpressionContainer',
-              'JSXOpeningElement',
-              'JSXClosingElement',
-              'JSXFragment',
-              'JSXOpeningFragment',
-              'JSXClosingFragment',
-              'JSXText',
-              'JSXEmptyExpression',
-              'JSXSpreadChild',
+              'TemplateLiteral *', // even after some fixes in @stylistic, still not handling multiline expressions in template literals properly
             ],
           },
         ],
@@ -369,6 +374,11 @@ function customize(options: CustomizeOptions = {}) {
         'no-param-reassign': 'error',
         'object-shorthand': 'error',
         'one-var': ['error', 'never'],
+        'perfectionist/sort-named-exports': ['error', { groupKind: 'types-first' }],
+        'perfectionist/sort-named-imports': [
+          'error',
+          { ignoreAlias: true, groupKind: 'types-first' },
+        ],
         'prefer-arrow-callback': ['error', { allowNamedFunctions: true }],
         ...(consoleUsage !== 'allow' && {
           'no-console':
@@ -390,9 +400,9 @@ function customize(options: CustomizeOptions = {}) {
         rules: {
           // allow i.a. `type Props = {}` in react components
           // https://github.com/typescript-eslint/typescript-eslint/issues/2063#issuecomment-675156492
-          '@typescript-eslint/ban-types': [
+          '@typescript-eslint/no-empty-object-type': [
             'error',
-            { extendDefaults: true, types: { '{}': false } },
+            { allowInterfaces: 'with-single-extends', allowWithName: 'Props$' },
           ],
         },
       },
@@ -429,7 +439,6 @@ function customize(options: CustomizeOptions = {}) {
           '@stylistic/jsx-equals-spacing': 'error',
           '@stylistic/jsx-first-prop-new-line': 'error',
           '@stylistic/jsx-function-call-newline': 'error',
-          '@stylistic/jsx-indent': ['error', indent],
           '@stylistic/jsx-indent-props': ['error', indent],
           '@stylistic/jsx-props-no-multi-spaces': 'error',
           '@stylistic/jsx-quotes': 'error',
@@ -492,7 +501,7 @@ function customize(options: CustomizeOptions = {}) {
       ],
       languageOptions: {
         globals: {
-          ...globals.jest,
+          ...jestPlugin.environments.globals.globals,
           DB: 'readonly',
           GQL: 'readonly',
           Setup: 'readonly',
@@ -503,7 +512,6 @@ function customize(options: CustomizeOptions = {}) {
         jest: jestPlugin,
       },
       rules: {
-        // flat config is not supported by eslint-plugin-jest yet - https://github.com/jest-community/eslint-plugin-jest/issues/1408
         ...jestPlugin.configs.recommended.rules,
         // the recommended set is too strict for us. Disable rules which we do not want.
         // https://github.com/jest-community/eslint-plugin-jest#rules
@@ -540,7 +548,7 @@ function customize(options: CustomizeOptions = {}) {
   }
 
   if (vitest) {
-    const vitestPlugin = require('eslint-plugin-vitest');
+    const vitestPlugin = require('@vitest/eslint-plugin');
     config.push({
       name: 'vitest',
       files: [
@@ -572,18 +580,13 @@ function customize(options: CustomizeOptions = {}) {
     const mochaPlugin = require('eslint-plugin-mocha');
     config.push(
       {
+        ...mochaPlugin.configs.flat.recommended,
         name: 'mocha',
         files: [
           `${testsDir}/**/*.?(c|m)[jt]s`,
           '**/__tests__/**/*.?(c|m)[jt]s',
           '**/*.{spec,test}.?(c|m)[jt]s',
         ],
-        languageOptions: {
-          globals: globals.mocha,
-        },
-        plugins: {
-          mocha: mochaPlugin,
-        },
         rules: {
           // https://github.com/lo1tuma/eslint-plugin-mocha#rules
           ...mochaPlugin.configs.flat.recommended.rules,
@@ -607,20 +610,20 @@ function customize(options: CustomizeOptions = {}) {
         rules: {
           'mocha/no-exports': 'off',
         },
-      },
+      }
     );
   }
 
   if (cypress) {
     const cypressPlugin = require('eslint-plugin-cypress/flat');
     config.push({
+      ...cypressPlugin.configs.recommended,
       name: 'cypress',
       files: [
         `${testsDir}/**/*.?(c|m)[jt]s`,
         '**/__tests__/**/*.?(c|m)[jt]s',
         '**/*.{spec,test}.?(c|m)[jt]s',
       ],
-      ...cypressPlugin.configs.recommended,
       rules: {
         ...cypressPlugin.configs.recommended.rules,
         // Even though cypress is based on mocha, and uses `this` in regular functions to access the test context,
