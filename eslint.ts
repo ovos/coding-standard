@@ -324,7 +324,7 @@ function customize(options: CustomizeOptions = {}) {
         '@stylistic/quotes': [
           'error',
           'single',
-          { allowTemplateLiterals: true, avoidEscape: true },
+          { allowTemplateLiterals: 'avoidEscape', avoidEscape: true },
         ],
         '@stylistic/rest-spread-spacing': ['error', 'never'],
         '@stylistic/semi': 'error',
