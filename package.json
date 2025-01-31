@@ -1,6 +1,6 @@
 {
   "name": "@ovos-media/coding-standard",
-  "version": "3.0.0-rc.3",
+  "version": "3.0.0-rc.4",
   "description": "ovos-media coding standard",
   "main": "index.js",
   "types": "index.d.ts",
@@ -28,7 +28,7 @@
     "eslint-plugin-mocha": "^10.5.0",
     "eslint-plugin-perfectionist": "^4.7.0",
     "eslint-plugin-react": "^7.37.4",
-    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-hooks": "5.0.0 || ^5.2.0",
     "globals": "^15.14.0"
   },
   "devDependencies": {
