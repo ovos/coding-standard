@@ -1,6 +1,6 @@
 {
   "name": "@ovos-media/coding-standard",
-  "version": "3.0.0-rc.4",
+  "version": "3.0.0",
   "description": "ovos-media coding standard",
   "main": "index.js",
   "types": "index.d.ts",
