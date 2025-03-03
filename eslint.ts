@@ -616,9 +616,14 @@ function customize(options: CustomizeOptions = {}) {
 
   if (cypress) {
     const cypressPlugin = require('eslint-plugin-cypress/flat');
+    const chaiFriendlyPlugin = require('eslint-plugin-chai-friendly');
     config.push({
       ...cypressPlugin.configs.recommended,
       name: 'cypress',
+      plugins: {
+        ...cypressPlugin.configs.recommended.plugins,
+        'chai-friendly': chaiFriendlyPlugin,
+      },
       files: [
         `${testsDir}/**/*.?(c|m)[jt]s`,
         '**/__tests__/**/*.?(c|m)[jt]s',
@@ -632,6 +637,10 @@ function customize(options: CustomizeOptions = {}) {
         // Still when `this` context needs to be accessed, a dev can easily convert an arrow function to a regular function.
         // This rule comes from our default config for `mocha`.
         'mocha/no-mocha-arrows': 'off',
+        // allow 'expect(foo).to.be.true' https://github.com/ihordiachenko/eslint-plugin-chai-friendly
+        'no-unused-expressions': 'off',
+        '@typescript-eslint/no-unused-expressions': 'off',
+        'chai-friendly/no-unused-expressions': shared['no-unused-expressions'],
       },
     });
   }
