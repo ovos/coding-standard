@@ -1,6 +1,6 @@
 import type { Oxfmtrc } from 'oxfmt';
 
-import { formatBase, type Indent } from './format-base.js';
+import { type Indent, formatBase } from './format-base.js';
 
 export type OxfmtOptions = {
   // number of spaces per indentation level, or 'tab' (default: 2)

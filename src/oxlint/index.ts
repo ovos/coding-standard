@@ -2,7 +2,7 @@ import type { OxlintConfig, OxlintOverride } from 'oxlint';
 
 import { namingConventionOptions } from '../plugins/typescript.js';
 import { globs, scriptExtensions, testGlobs, testHelperGlobs } from './globs.js';
-import { resolveOptions, type OxlintOptions } from './options.js';
+import { type OxlintOptions, resolveOptions } from './options.js';
 import { jsPlugins } from './plugins.js';
 import { coreRules, jsRules, tsRules } from './rules/core.js';
 import { reactHookFileRules, reactRules, reactTsxRules } from './rules/react.js';
