@@ -36,8 +36,9 @@ test('console option maps to no-console', () => {
 test('stylistic indent option flows into the indent rules', () => {
   assert.deepEqual((stylisticRules('tab')['stylistic/indent'] as unknown[]).slice(0, 2), ['error', 'tab']);
   assert.deepEqual(stylisticJsxRules(4)['stylistic/jsx-indent-props'], ['error', 4]);
-  assert.equal('stylistic/func-call-spacing' in stylisticRules(2), false, 'renamed in stylistic v6');
-  assert.equal('stylistic/jsx-props-no-multi-spaces' in stylisticJsxRules(2), false, 'removed in stylistic v6');
+  // v5 rule names; v6 removes jsx-props-no-multi-spaces (see stylistic.ts)
+  assert.equal(stylisticRules(2)['stylistic/function-call-spacing'], 'error');
+  assert.equal(stylisticJsxRules(2)['stylistic/jsx-props-no-multi-spaces'], 'error');
 });
 
 test('react compiler family is off by default and on by option', () => {

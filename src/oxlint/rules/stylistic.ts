@@ -2,10 +2,16 @@ import type { Rules } from './core.js';
 
 type Indent = number | 'tab';
 
-// the @stylistic rules of v3, unchanged except: func-call-spacing renamed (stylistic v6), jsx-props-no-multi-spaces
-// removed (folded into no-multi-spaces), generator and yield star spacing switched to `after` so that on-demand
-// oxfmt or prettier output (`function* f`) never violates lint. jsx-self-closing-comp and jsx-curly-brace-presence
-// moved to oxlint's native react rules (see react.ts).
+// the @stylistic rules of v3, unchanged except: generator and yield star spacing switched to `after` so that
+// on-demand oxfmt or prettier output (`function* f`) never violates lint; jsx-self-closing-comp and
+// jsx-curly-brace-presence moved to oxlint's native react rules (see react.ts).
+//
+// stylistic is pinned to v5: v6 (beta at the time of writing) deprecates array-bracket-spacing and
+// object-curly-spacing in favour of `list-style`, which also enforces line breaks inside lists (1,842 new findings
+// on 4,000 files where the two spacing rules report 1) and prints a deprecation notice on every run for the old
+// rules. when upgrading: `jsx-props-no-multi-spaces` is folded into `no-multi-spaces`, and v6's `indent` reports
+// multi-line assignment continuations, nested conditional types and arrow-function bodies that v5 accepts
+// (86 auto-fixable findings on the same 4,000 files).
 export function stylisticRules(indent: Indent): Rules {
   return {
     'stylistic/array-bracket-spacing': ['error', 'never'],
@@ -106,6 +112,7 @@ export function stylisticJsxRules(indent: Indent): Rules {
     'stylistic/jsx-first-prop-new-line': 'error',
     'stylistic/jsx-function-call-newline': 'error',
     'stylistic/jsx-indent-props': ['error', indent],
+    'stylistic/jsx-props-no-multi-spaces': 'error',
     'stylistic/jsx-quotes': 'error',
     'stylistic/jsx-tag-spacing': [
       'error',

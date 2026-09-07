@@ -20,7 +20,8 @@ RuleTester), oxfmt 0.66, Node `^20.19.0 || >=22.18.0`.
 
 - Node engines: `^20.19.0 || >=22.18.0`. Package is ESM only (`"type": "module"`).
 - Dependencies pinned at today's latest with caret ranges: `oxlint` ^1.81.0, `oxfmt` ^0.66.0,
-  `oxlint-plugin-eslint` ^1.81.0, `@stylistic/eslint-plugin` 6.0.0-beta.6 (exact), `eslint-plugin-perfectionist`
+  `oxlint-plugin-eslint` ^1.81.0, `@stylistic/eslint-plugin` ^5.10.0 (v6 rejected during Task 9, see the spec's
+  item 11.2), `eslint-plugin-perfectionist`
   ^5.11.0, `eslint-plugin-mocha` ^12.0.2, `eslint-plugin-playwright` ^2.11.0, `@typescript-eslint/eslint-plugin`
   ^8.69.0, `eslint` ^10.9.1. `oxlint-tsgolint` is an optional peer `>=7.0.2001`.
 - Errors only: no rule is configured at `warn`.

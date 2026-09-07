@@ -98,7 +98,7 @@ under their current serial ESLint setup; the largest alone takes 36 s.
 ### 4.1 Dependencies
 
 Regular dependencies, all at today's latest: `oxlint` ^1.81.0, `oxfmt` ^0.66.0, `oxlint-plugin-eslint` ^1.81.0,
-`@stylistic/eslint-plugin` 6.0.0-beta.6 (see 11.2), `eslint-plugin-perfectionist` ^5.11.0,
+`@stylistic/eslint-plugin` ^5.10.0 (see 11.2), `eslint-plugin-perfectionist` ^5.11.0,
 `eslint-plugin-mocha` ^12.0.2, `eslint-plugin-playwright` ^2.11.0, `@typescript-eslint/eslint-plugin` ^8.69.0
 (for the naming wrapper), `eslint` ^10.9.1 (runtime requirement of eslint-plugin-mocha and typescript-eslint).
 
@@ -356,7 +356,12 @@ invocation). Against 120 s for the serial ESLint setup it replaces, and instant 
 ## 11. Open items, resolved for implementation
 
 1. `oxlint-tsgolint`: optional peer dependency, so consumers that never enable type-aware mode do not install 21 MB.
-2. Stylistic: `6.0.0-beta.6`, the version that targets oxlint. Consumers fix its 86-style findings with `--fix`.
+2. Stylistic: pinned to `^5.10.0` after implementation found that v6 deprecates `array-bracket-spacing` and
+   `object-curly-spacing` in favour of `list-style`, which also enforces line breaks inside lists (1,842 findings
+   on the three packages against 1 for the two spacing rules) and prints a deprecation notice on every run for the
+   old rules. ESLint's own versions via `oxlint-plugin-eslint` lack TypeScript coverage. v5 under oxlint: zero
+   findings, no notices, full parity. The v6 upgrade (renames, removals, 86 `indent` findings) is documented in
+   `src/oxlint/rules/stylistic.ts` for a later minor.
 3. `generator-star-spacing` and `yield-star-spacing` switched to `after`, matching oxfmt and Prettier output so
    on-demand formatting cannot produce lint errors; auto-fixable.
 4. `comma-dangle` for functions stays `only-multiline`, accepting both styles.

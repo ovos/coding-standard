@@ -9,9 +9,9 @@ export type JsPlugin = { name: string; specifier: string };
 export const resolvePlugin = (specifier: string): string => fileURLToPath(import.meta.resolve(specifier));
 
 export const jsPlugins = {
-  // @stylistic/eslint-plugin 6 (https://github.com/eslint-stylistic/eslint-stylistic) declares oxlint as a peer.
-  // it is the enforced formatting layer of this standard; oxfmt is an on-demand tool. about 11 s per 4,000 files,
-  // 7 s of it the indent rule.
+  // @stylistic/eslint-plugin (https://github.com/eslint-stylistic/eslint-stylistic) is the enforced formatting
+  // layer of this standard; oxfmt is an on-demand tool. about 11 s per 4,000 files, 7 s of it the indent rule.
+  // pinned to v5; see rules/stylistic.ts for what the v6 upgrade changes.
   stylistic: (): JsPlugin => ({ name: 'stylistic', specifier: resolvePlugin('@stylistic/eslint-plugin') }),
 
   /*
