@@ -6,13 +6,17 @@ export type JsPlugin = { name: string; specifier: string };
 // monorepo without hoisting would otherwise resolve different copies per package. oxlint deduplicates js plugins
 // by resolved path and rejects a second copy of the same plugin name
 // (https://github.com/oxc-project/oxc/issues/26017), so consumers must install this package once, at the root.
-export const resolvePlugin = (specifier: string): string => fileURLToPath(import.meta.resolve(specifier));
+export const resolvePlugin = (specifier: string): string =>
+  fileURLToPath(import.meta.resolve(specifier));
 
 export const jsPlugins = {
   // @stylistic/eslint-plugin (https://github.com/eslint-stylistic/eslint-stylistic) is the enforced formatting
   // layer of this standard; oxfmt is an on-demand tool. about 11 s per 4,000 files, 7 s of it the indent rule.
   // pinned to v5; see rules/stylistic.ts for what the v6 upgrade changes.
-  stylistic: (): JsPlugin => ({ name: 'stylistic', specifier: resolvePlugin('@stylistic/eslint-plugin') }),
+  stylistic: (): JsPlugin => ({
+    name: 'stylistic',
+    specifier: resolvePlugin('@stylistic/eslint-plugin'),
+  }),
 
   /*
    * eslint-plugin-perfectionist (https://github.com/azat-io/eslint-plugin-perfectionist): sort-named-imports and
@@ -47,7 +51,10 @@ export const jsPlugins = {
 
   // ESLint's built-in rules as an oxlint plugin, published by the oxc project (https://github.com/oxc-project/oxc).
   // used for `camelcase`, which oxlint does not implement. no runtime cost measured on top of the native rules.
-  eslintJs: (): JsPlugin => ({ name: 'eslint-js', specifier: resolvePlugin('oxlint-plugin-eslint') }),
+  eslintJs: (): JsPlugin => ({
+    name: 'eslint-js',
+    specifier: resolvePlugin('oxlint-plugin-eslint'),
+  }),
 
   // this package's wrapper around typescript-eslint's naming-convention; see src/plugins/typescript.ts
   typescriptJs: (): JsPlugin => ({
@@ -58,7 +65,10 @@ export const jsPlugins = {
   // eslint-plugin-check-file (https://github.com/dukeluo/eslint-plugin-check-file) for component file naming.
   // no runtime dependency on eslint. oxlint's unicorn/filename-case rejects acronyms (AIConversation.tsx),
   // check-file's PASCAL_CASE accepts them, as v3 did
-  checkFile: (): JsPlugin => ({ name: 'check-file', specifier: resolvePlugin('eslint-plugin-check-file') }),
+  checkFile: (): JsPlugin => ({
+    name: 'check-file',
+    specifier: resolvePlugin('eslint-plugin-check-file'),
+  }),
 
   // eslint-plugin-mocha 12 (https://github.com/lo1tuma/eslint-plugin-mocha) imports `eslint` at runtime.
   // oxlint has no mocha plugin; its jest rules would cover focused tests, identical titles and async suites
@@ -67,5 +77,8 @@ export const jsPlugins = {
 
   // eslint-plugin-playwright (https://github.com/mskelton/eslint-plugin-playwright); no runtime dependency on
   // eslint
-  playwright: (): JsPlugin => ({ name: 'playwright', specifier: resolvePlugin('eslint-plugin-playwright') }),
+  playwright: (): JsPlugin => ({
+    name: 'playwright',
+    specifier: resolvePlugin('eslint-plugin-playwright'),
+  }),
 };

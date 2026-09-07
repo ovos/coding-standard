@@ -1,6 +1,7 @@
 import type { OxlintConfig, OxlintOverride } from 'oxlint';
 
 import { namingConventionOptions } from '../plugins/typescript.js';
+
 import { globs, scriptExtensions, testGlobs, testHelperGlobs } from './globs.js';
 import { type OxlintOptions, resolveOptions } from './options.js';
 import { jsPlugins } from './plugins.js';
@@ -37,7 +38,13 @@ const alphabet = '_-.@/#~$0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 export function oxlint(options: OxlintOptions = {}): OxlintConfig {
   const o = resolveOptions(options);
 
-  const plugins: NonNullable<OxlintConfig['plugins']> = ['eslint', 'typescript', 'unicorn', 'oxc', 'import'];
+  const plugins: NonNullable<OxlintConfig['plugins']> = [
+    'eslint',
+    'typescript',
+    'unicorn',
+    'oxc',
+    'import',
+  ];
   if (o.a11y) plugins.push('jsx-a11y');
 
   const overrides: OxlintOverride[] = [
@@ -67,7 +74,11 @@ export function oxlint(options: OxlintOptions = {}): OxlintConfig {
         env: { browser: true },
         plugins: ['react'],
         jsPlugins: [jsPlugins.checkFile()],
-        rules: { ...stylisticJsxRules(o.indent), ...reactRules(), ...reactCompilerRules(o.reactCompiler) },
+        rules: {
+          ...stylisticJsxRules(o.indent),
+          ...reactRules(),
+          ...reactCompilerRules(o.reactCompiler),
+        },
       },
       { files: [globs.tsx], rules: reactTsxRules() },
     );
@@ -116,11 +127,22 @@ export function oxlint(options: OxlintOptions = {}): OxlintConfig {
   return {
     plugins,
     categories: { correctness: 'error' },
-    jsPlugins: [jsPlugins.stylistic(), jsPlugins.perfectionist(), jsPlugins.eslintJs(), jsPlugins.typescriptJs()],
+    jsPlugins: [
+      jsPlugins.stylistic(),
+      jsPlugins.perfectionist(),
+      jsPlugins.eslintJs(),
+      jsPlugins.typescriptJs(),
+    ],
     rules: {
       'perfectionist/sort-named-imports': [
         'error',
-        { type: 'custom', alphabet, ignoreCase: false, ignoreAlias: true, groups: ['type-import', 'value-import'] },
+        {
+          type: 'custom',
+          alphabet,
+          ignoreCase: false,
+          ignoreAlias: true,
+          groups: ['type-import', 'value-import'],
+        },
       ],
       'perfectionist/sort-named-exports': [
         'error',

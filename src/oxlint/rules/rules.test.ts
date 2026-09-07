@@ -30,12 +30,18 @@ test('no rule is configured at warn', () => {
 
 test('console option maps to no-console', () => {
   assert.equal(coreRules('allow')['no-console'], undefined);
-  assert.deepEqual(coreRules('ban-log')['no-console'], ['error', { allow: ['error', 'warn', 'info'] }]);
+  assert.deepEqual(coreRules('ban-log')['no-console'], [
+    'error',
+    { allow: ['error', 'warn', 'info'] },
+  ]);
   assert.equal(coreRules('ban')['no-console'], 'error');
 });
 
 test('stylistic indent option flows into the indent rules', () => {
-  assert.deepEqual((stylisticRules('tab')['stylistic/indent'] as unknown[]).slice(0, 2), ['error', 'tab']);
+  assert.deepEqual((stylisticRules('tab')['stylistic/indent'] as unknown[]).slice(0, 2), [
+    'error',
+    'tab',
+  ]);
   assert.deepEqual(stylisticJsxRules(4)['stylistic/jsx-indent-props'], ['error', 4]);
   // v5 rule name (v6 keeps it); jsx-props-no-multi-spaces is not configured (see stylistic.ts)
   assert.equal(stylisticRules(2)['stylistic/function-call-spacing'], 'error');

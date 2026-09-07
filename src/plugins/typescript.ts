@@ -57,7 +57,10 @@ const emptyParserServices = {
 
 function withParserServices(context: RuleContext): RuleContext {
   const sourceCode = Object.create(context.sourceCode ?? {}) as object;
-  Object.defineProperty(sourceCode, 'parserServices', { value: emptyParserServices, enumerable: true });
+  Object.defineProperty(sourceCode, 'parserServices', {
+    value: emptyParserServices,
+    enumerable: true,
+  });
   const derived = Object.create(context) as RuleContext;
   Object.defineProperty(derived, 'sourceCode', { value: sourceCode, enumerable: true });
   return derived;
@@ -76,7 +79,11 @@ export const namingConventionOptions: NamingConventionSelector[] = [
   { selector: 'function', format: ['camelCase', 'PascalCase'] },
   { selector: 'method', format: ['camelCase'] },
   // snake_case for graphql resolvers of snake_cased fields, double underscore for `__resolveType` and similar
-  { selector: 'objectLiteralMethod', format: ['camelCase', 'snake_case'], leadingUnderscore: 'allowDouble' },
+  {
+    selector: 'objectLiteralMethod',
+    format: ['camelCase', 'snake_case'],
+    leadingUnderscore: 'allowDouble',
+  },
   { selector: 'typeLike', format: ['PascalCase', 'UPPER_CASE'] },
   { selector: 'import', format: ['camelCase', 'PascalCase'] },
 ];

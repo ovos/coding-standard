@@ -2,6 +2,15 @@
   "name": "@ovos-media/coding-standard",
   "version": "4.0.0",
   "description": "ovos-media coding standard: shared oxlint, oxfmt and prettier configuration",
+  "homepage": "https://github.com/ovos/coding-standard",
+  "license": "MIT",
+  "author": "ovos",
+  "repository": "https://github.com/ovos/coding-standard",
+  "files": [
+    "dist",
+    "!dist/**/*.test.js",
+    "!dist/**/*.test.d.ts"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -28,10 +37,6 @@
     },
     "./package.json": "./package.json"
   },
-  "author": "ovos",
-  "license": "MIT",
-  "repository": "https://github.com/ovos/coding-standard",
-  "homepage": "https://github.com/ovos/coding-standard",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
@@ -53,6 +58,10 @@
     "oxlint": "^1.81.0",
     "oxlint-plugin-eslint": "^1.81.0"
   },
+  "devDependencies": {
+    "@types/node": "24.0.14",
+    "typescript": "5.9.3"
+  },
   "peerDependencies": {
     "oxlint-tsgolint": ">=7.0.2001"
   },
@@ -61,16 +70,7 @@
       "optional": true
     }
   },
-  "devDependencies": {
-    "@types/node": "24.0.14",
-    "typescript": "5.9.3"
-  },
   "engines": {
     "node": "^20.19.0 || >=22.18.0"
-  },
-  "files": [
-    "dist",
-    "!dist/**/*.test.js",
-    "!dist/**/*.test.d.ts"
-  ]
+  }
 }

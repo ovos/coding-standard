@@ -57,7 +57,9 @@ export function coreRules(consoleUsage: ConsoleUsage): Rules {
     // schemas; the rule cannot tell the two apart
     'unicorn/no-thenable': 'off',
     ...(consoleUsage === 'ban' && { 'no-console': 'error' }),
-    ...(consoleUsage === 'ban-log' && { 'no-console': ['error', { allow: ['error', 'warn', 'info'] }] }),
+    ...(consoleUsage === 'ban-log' && {
+      'no-console': ['error', { allow: ['error', 'warn', 'info'] }],
+    }),
   };
 }
 

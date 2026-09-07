@@ -17,7 +17,10 @@ export const globs = {
 } as const;
 
 // files in testsDir, in __tests__ folders, and *.spec.* / *.test.* anywhere
-export function testGlobs(testsDir: string, extensions: readonly string[] = allExtensions): string[] {
+export function testGlobs(
+  testsDir: string,
+  extensions: readonly string[] = allExtensions,
+): string[] {
   const ext = braces(extensions);
   return [`${testsDir}/**/*.${ext}`, `**/__tests__/**/*.${ext}`, `**/*.{spec,test}.${ext}`];
 }

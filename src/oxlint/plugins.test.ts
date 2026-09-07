@@ -12,8 +12,14 @@ test('every js plugin resolves to an existing file inside this package', () => {
   for (const factory of Object.values(jsPlugins)) {
     const plugin = factory();
     assert.ok(path.isAbsolute(plugin.specifier), `${plugin.name} must be an absolute path`);
-    assert.ok(fs.existsSync(plugin.specifier), `${plugin.name}: ${plugin.specifier} does not exist`);
-    assert.ok(plugin.specifier.startsWith(packageRoot), `${plugin.name} must resolve inside ${packageRoot}`);
+    assert.ok(
+      fs.existsSync(plugin.specifier),
+      `${plugin.name}: ${plugin.specifier} does not exist`,
+    );
+    assert.ok(
+      plugin.specifier.startsWith(packageRoot),
+      `${plugin.name} must resolve inside ${packageRoot}`,
+    );
   }
 });
 
@@ -22,6 +28,14 @@ test('plugin names are the ones the rules reference', () => {
     Object.values(jsPlugins)
       .map((factory) => factory().name)
       .sort(),
-    ['check-file', 'eslint-js', 'mocha', 'perfectionist', 'playwright', 'stylistic', 'typescript-js'],
+    [
+      'check-file',
+      'eslint-js',
+      'mocha',
+      'perfectionist',
+      'playwright',
+      'stylistic',
+      'typescript-js',
+    ],
   );
 });

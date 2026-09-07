@@ -20,10 +20,14 @@ export function runOxlint(fixture: string, config: object): Set<string> {
   try {
     fs.cpSync(path.join(fixturesRoot, fixture), dir, { recursive: true });
     fs.writeFileSync(path.join(dir, '.oxlintrc.json'), JSON.stringify(config));
-    const result = spawnSync(process.execPath, [oxlintBin, '--disable-nested-config', '-f', 'json', '.'], {
-      cwd: dir,
-      encoding: 'utf8',
-    });
+    const result = spawnSync(
+      process.execPath,
+      [oxlintBin, '--disable-nested-config', '-f', 'json', '.'],
+      {
+        cwd: dir,
+        encoding: 'utf8',
+      },
+    );
     if (!result.stdout.trim().startsWith('{')) {
       throw new Error(`oxlint produced no json output:\n${result.stdout}\n${result.stderr}`);
     }

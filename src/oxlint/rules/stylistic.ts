@@ -82,7 +82,11 @@ export function stylisticRules(indent: Indent): Rules {
     'stylistic/no-whitespace-before-property': 'error',
     'stylistic/object-curly-spacing': ['error', 'always'],
     'stylistic/quote-props': ['error', 'as-needed'],
-    'stylistic/quotes': ['error', 'single', { allowTemplateLiterals: 'avoidEscape', avoidEscape: true }],
+    'stylistic/quotes': [
+      'error',
+      'single',
+      { allowTemplateLiterals: 'avoidEscape', avoidEscape: true },
+    ],
     'stylistic/rest-spread-spacing': ['error', 'never'],
     'stylistic/semi': 'error',
     'stylistic/semi-spacing': 'error',

@@ -21,7 +21,9 @@ const reactCompilerFamily = [
 ];
 
 export function reactCompilerRules(reactCompiler: boolean): Rules {
-  return Object.fromEntries(reactCompilerFamily.map((rule) => [rule, reactCompiler ? 'error' : 'off'] as const));
+  return Object.fromEntries(
+    reactCompilerFamily.map((rule) => [rule, reactCompiler ? 'error' : 'off'] as const),
+  );
 }
 
 // jsx and tsx files
@@ -52,7 +54,10 @@ export function reactRules(): Rules {
     'react/require-render-return': 'error',
     // formerly @stylistic/jsx-self-closing-comp and @stylistic/jsx-curly-brace-presence
     'react/self-closing-comp': 'error',
-    'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never', propElementValues: 'always' }],
+    'react/jsx-curly-brace-presence': [
+      'error',
+      { props: 'never', children: 'never', propElementValues: 'always' },
+    ],
     'react/jsx-no-useless-fragment': ['error', { allowExpressions: true }],
     // oxlint's rules-of-hooks also reports hooks called from anonymous functions, which eslint-plugin-react-hooks 5
     // accepted; storybook `render: () => { useState() }` patterns need a named component function

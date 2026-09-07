@@ -18,7 +18,10 @@ tsRuleTester.run('typescript-js/naming-convention', rule as never, {
     { code: 'class Api { getData() {} }', options },
     { code: 'const r = { user_name() {}, __resolveType() {} };', options },
     { code: 'type UserProfile = {}; type UPPER_CASE = {};', options },
-    { code: "import okLib from 'ok-lib'; import { some_named } from 'x'; okLib(some_named);", options },
+    {
+      code: "import okLib from 'ok-lib'; import { some_named } from 'x'; okLib(some_named);",
+      options,
+    },
     { code: 'const some_var = 1; const obj: any = {}; obj.some_prop = some_var;', options },
     { code: "const o = { 'quoted.key': 1 };", options },
   ],

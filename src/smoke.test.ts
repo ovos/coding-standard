@@ -5,10 +5,15 @@ import { oxlint } from './oxlint/index.js';
 import { runOxlint } from './smoke-helpers.js';
 
 const list = (found: Set<string>) => [...found].sort().join('\n  ');
-const has = (found: Set<string>, entry: string) => assert.ok(found.has(entry), `expected ${entry} in:\n  ${list(found)}`);
-const lacks = (found: Set<string>, entry: string) => assert.ok(!found.has(entry), `unexpected ${entry}`);
+const has = (found: Set<string>, entry: string) =>
+  assert.ok(found.has(entry), `expected ${entry} in:\n  ${list(found)}`);
+const lacks = (found: Set<string>, entry: string) =>
+  assert.ok(!found.has(entry), `unexpected ${entry}`);
 const cleanFile = (found: Set<string>, file: string) =>
-  assert.ok(![...found].some((e) => e.startsWith(`${file}:`)), `expected no findings in ${file}:\n  ${list(found)}`);
+  assert.ok(
+    ![...found].some((e) => e.startsWith(`${file}:`)),
+    `expected no findings in ${file}:\n  ${list(found)}`,
+  );
 
 test('base config: naming, camelcase, stylistic and perfectionist fire; clean file is clean', () => {
   const found = runOxlint('base', oxlint());
