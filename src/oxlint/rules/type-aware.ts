@@ -39,7 +39,7 @@ const defaultOnElsewhere = [
 export function typeAwareRules(typeChecked: boolean): Rules {
   return {
     'typescript/no-for-in-array': 'error',
-    ...Object.fromEntries(catchers.map((rule) => [rule, typeChecked ? 'error' : 'off'])),
-    ...Object.fromEntries(defaultOnElsewhere.map((rule) => [rule, 'off'])),
+    ...Object.fromEntries(catchers.map((rule) => [rule, typeChecked ? 'error' : 'off'] as const)),
+    ...Object.fromEntries(defaultOnElsewhere.map((rule) => [rule, 'off'] as const)),
   };
 }

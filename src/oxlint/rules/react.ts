@@ -43,7 +43,7 @@ export function reactRules(reactCompiler: boolean): Rules {
     'react/jsx-no-useless-fragment': ['error', { allowExpressions: true }],
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'error',
-    ...Object.fromEntries(reactCompilerFamily.map((rule) => [rule, reactCompiler ? 'error' : 'off'])),
+    ...Object.fromEntries(reactCompilerFamily.map((rule) => [rule, reactCompiler ? 'error' : 'off'] as const)),
     // component files are PascalCase; index and routes files are exempt (replaces check-file of v3)
     'unicorn/filename-case': ['error', { case: 'pascalCase', ignore: ['^index\\.', '^routes\\.'] }],
   };

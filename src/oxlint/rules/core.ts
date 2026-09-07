@@ -1,9 +1,18 @@
-export type Rules = Record<string, unknown>;
+import type { DummyRuleMap } from 'oxlint';
+
+// oxlint's rule map type: severity or [severity, ...options]
+export type Rules = DummyRuleMap;
 export type ConsoleUsage = 'ban' | 'ban-log' | 'allow';
 
 // shared options for the rules that exist in a js and a ts flavour
-const noUnusedExpressions = ['error', { allowShortCircuit: true, allowTernary: true }];
-const noUnusedVars = ['error', { varsIgnorePattern: '^_', args: 'none', caughtErrors: 'none' }];
+const noUnusedExpressions: Rules['no-unused-expressions'] = [
+  'error',
+  { allowShortCircuit: true, allowTernary: true },
+];
+const noUnusedVars: Rules['no-unused-vars'] = [
+  'error',
+  { varsIgnorePattern: '^_', args: 'none', caughtErrors: 'none' },
+];
 
 // rules for every file. oxlint's `correctness` category (set to error by the config) covers most of
 // eslint:recommended and typescript-eslint recommended; the ones it does not enable by default are listed here.
