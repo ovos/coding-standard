@@ -64,7 +64,7 @@ export function reactRules(): Rules {
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'error',
     // component files are PascalCase, hooks and higher-order components (use*, with*) camelCase, index and routes
-    // files exempt. eslint-plugin-check-file accepts acronyms (AIConversation.tsx); unicorn/filename-case does not
+    // files exempt. eslint-plugin-check-file accepts acronyms (AIPanel.tsx); unicorn/filename-case does not
     'check-file/filename-naming-convention': [
       'error',
       {

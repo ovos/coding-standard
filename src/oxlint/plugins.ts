@@ -63,7 +63,7 @@ export const jsPlugins = {
   }),
 
   // eslint-plugin-check-file (https://github.com/dukeluo/eslint-plugin-check-file) for component file naming.
-  // no runtime dependency on eslint. oxlint's unicorn/filename-case rejects acronyms (AIConversation.tsx),
+  // no runtime dependency on eslint. oxlint's unicorn/filename-case rejects acronyms (AIPanel.tsx),
   // check-file's PASCAL_CASE accepts them, as v3 did
   checkFile: (): JsPlugin => ({
     name: 'check-file',

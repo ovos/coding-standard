@@ -41,7 +41,7 @@ under their current serial ESLint setup; the largest alone takes 36 s.
 | 3b | Other type-aware rules | Behind a `typeChecked` option, default off: the 15 runtime-bug catchers from typescript-eslint's `recommended-type-checked` (https://github.com/typescript-eslint/typescript-eslint) plus `no-unnecessary-type-assertion`, minus the `no-unsafe-*` family and the judgement calls. |
 | 4 | Named-specifier sorting | Keep `perfectionist/sort-named-imports` and `sort-named-exports` (https://github.com/azat-io/eslint-plugin-perfectionist) as a JS plugin, with the v5 `groups` option. |
 | 5 | `react/jsx-no-bind` | Dropped. Not in any recommended set; every hit in the validation monorepo was suppressed inline. |
-| 6c | Formatting strategy | The 42 surviving `@stylistic` rules stay the enforced layer, running under oxlint with `indent` included. oxfmt and Prettier are on-demand tools, never checked in CI. No repo-wide reformat. |
+| 6c | Formatting strategy | The surviving `@stylistic` rules (45 in v4, 34 plus 11 jsx) stay the enforced layer, running under oxlint with `indent` included. oxfmt and Prettier are on-demand tools, never checked in CI. No repo-wide reformat. |
 | 6a | Trailing commas | `all` in the oxfmt and Prettier exports (oxfmt's and Prettier 3's default). The stylistic `comma-dangle` rule keeps `functions: 'only-multiline'`, so both `es5`-style and `all`-style code pass lint. |
 | 6b | package.json sorting | oxfmt's default (on). Consumers can disable it globally, per package via `overrides`, or via a nested config; all three verified. |
 | 7 | jsx-a11y | Behind an `a11y` option, default off. oxlint's built-in plugin reports 600 findings on the three React packages of the validation monorepo. |
@@ -173,7 +173,7 @@ Returns a plain config object suitable for `defineConfig({ extends: [oxlint(opts
 - ESLint core and typescript-eslint rules from v3: all native, same options, except `radix` (dropped, 11.10).
   `import/no-duplicates` uses `preferInline: true`; `import/default` and `import/namespace` (on by default in
   oxlint, need module resolution) off. `unicorn/no-thenable` off (11.11).
-- `@stylistic`: the 42 rules from v3 as `stylistic/*`, same options, `func-call-spacing` renamed to
+- `@stylistic`: the v3 rules (45 in v4: 34 plus 11 jsx) as `stylistic/*`, same options, `func-call-spacing` renamed to
   `function-call-spacing`, `jsx-props-no-multi-spaces` dropped, `generator-star-spacing` and `yield-star-spacing`
   switched to `after` (11.3). `jsx-self-closing-comp` and `jsx-curly-brace-presence` move to their native `react/`
   equivalents.
@@ -384,7 +384,7 @@ invocation). Against 120 s for the serial ESLint setup it replaces, and instant 
    oxlint drops the rule silently. Also verified: a consumer's top-level `rules` cannot change a rule the shared
    config sets in an override (overrides apply last), and `ignorePatterns` of the root config do not reach files
    governed by a nested config.
-9. `eslint-plugin-check-file` is back: `unicorn/filename-case` rejects acronyms (`AIConversation.tsx`), which v3
+9. `eslint-plugin-check-file` is back: `unicorn/filename-case` rejects acronyms (`AIPanel.tsx`), which v3
    accepted. The plugin loads without `eslint` and keeps the v3 rule name, so existing directives stay valid.
    3.3.2 reports one camelCase `.tsx` file that the 2.8 consumers had installed let through (verified under ESLint
    with both versions).
