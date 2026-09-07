@@ -31,7 +31,8 @@ const alphabet = '_-.@/#~$0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
  * with per-file config blocks. A plugin listed in an override is added for the matched files only, and the
  * `categories` setting does not reach it, so every rule of such a plugin is listed explicitly. Enabling those
  * plugins at the top level would apply their category rules to every file: jest's expect rules to test helpers,
- * React Compiler and react-hooks rules to plain ts files.
+ * React Compiler and react-hooks rules to plain ts files. The price: a consumer override that changes one of
+ * these rules must list the plugin as well (`{ files, plugins: ['react'], rules }`), or oxlint drops the rule.
  */
 export function oxlint(options: OxlintOptions = {}): OxlintConfig {
   const o = resolveOptions(options);

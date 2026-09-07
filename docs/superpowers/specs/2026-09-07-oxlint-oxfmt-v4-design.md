@@ -82,7 +82,8 @@ under their current serial ESLint setup; the largest alone takes 36 s.
 - `eslint-plugin-mocha` 12 (https://github.com/lo1tuma/eslint-plugin-mocha) imports `eslint` at runtime, and so
   does perfectionist through `@typescript-eslint/utils`, so `eslint` stays a dependency (see
   https://github.com/oxc-project/oxc/issues/17734).
-- `radix` in ESLint 10 no longer accepts `as-needed`; oxlint's native rule still does.
+- `radix`: ESLint 10 deprecated `as-needed` and always requires a radix; oxlint's native rule accepts the option
+  but has ignored it since v1.49.0. Neither implements v3's behaviour (redundant 10 is the error).
 - Performance, three packages, warm: native 1.8 s; + `eslint-js/camelcase` no change; + perfectionist 3.0 s;
   + naming wrapper 9.0 s; + stylistic with `indent` 13 to 14 s; `oxfmt --check` alone 1.5 s; type-aware mode on a
   1,125-file program 1.9 s against 0.6 to 1.0 s. Startup per CLI invocation with all JS plugins: about 1 s.
@@ -99,16 +100,16 @@ under their current serial ESLint setup; the largest alone takes 36 s.
 
 Regular dependencies, all at today's latest: `oxlint` ^1.81.0, `oxfmt` ^0.66.0, `oxlint-plugin-eslint` ^1.81.0,
 `@stylistic/eslint-plugin` ^5.10.0 (see 11.2), `eslint-plugin-perfectionist` ^5.11.0,
-`eslint-plugin-mocha` ^12.0.2, `eslint-plugin-playwright` ^2.11.0, `@typescript-eslint/eslint-plugin` ^8.69.0
-(for the naming wrapper), `eslint` ^10.9.1 (runtime requirement of eslint-plugin-mocha and typescript-eslint).
+`eslint-plugin-mocha` ^12.0.2, `eslint-plugin-playwright` ^2.11.0, `eslint-plugin-check-file` ^3.3.2 (component
+file naming, see 11.9), `@typescript-eslint/eslint-plugin` ^8.69.0 (for the naming wrapper), `eslint` ^10.9.1
+(runtime requirement of eslint-plugin-mocha and typescript-eslint).
 
 `oxlint` and `oxfmt` ranges are bumped deliberately in this package: under `correctness: 'error'` a new default-on
 rule in an oxlint release is a new error in every consumer.
 
 Removed from v3: `@typescript-eslint/parser`, `@typescript-eslint/utils`, `@vitest/eslint-plugin`,
 `eslint-import-resolver-*`, `eslint-plugin-import-x`, `eslint-plugin-react`, `eslint-plugin-react-hooks`,
-`eslint-plugin-jest`, `eslint-plugin-cypress`, `eslint-plugin-chai-friendly`, `eslint-plugin-check-file`,
-`globals`, `@eslint/js`. `prettier` is no longer a dependency at all; the export is typed inline.
+`eslint-plugin-jest`, `eslint-plugin-cypress`, `eslint-plugin-chai-friendly`, `globals`, `@eslint/js`. `prettier` is no longer a dependency at all; the export is typed inline.
 
 `oxlint-tsgolint`: optional peer dependency (`peerDependenciesMeta`), documented next to the root switch.
 
@@ -137,8 +138,9 @@ Returns a plain config object suitable for `defineConfig({ extends: [oxlint(opts
 
 ### 4.3 Config shape
 
-- `plugins`: `eslint`, `typescript`, `unicorn`, `oxc`, `import`, plus `react` when `react`, `jest` when `jest`,
-  `vitest` when `vitest`, `jsx-a11y` when `a11y`.
+- `plugins`: `eslint`, `typescript`, `unicorn`, `oxc`, `import`, plus `jsx-a11y` when `a11y`. `react`, `jest` and
+  `vitest` are enabled inside their overrides (see 11.8): a plugin listed in an override is added for the matched
+  files only and `categories` do not reach it, so those overrides list every rule explicitly.
 - `categories: { correctness: 'error' }`.
 - `jsPlugins`, each resolved to an absolute file path with `fileURLToPath(import.meta.resolve(...))` from inside
   this package: `stylistic`, `perfectionist`, `eslint-js` (oxlint-plugin-eslint), `typescript-js` (this package's
@@ -149,14 +151,16 @@ Returns a plain config object suitable for `defineConfig({ extends: [oxlint(opts
   2. `**/*.{ts,mts,cts,tsx}`: the typescript-eslint recommended overrides as today, `typescript-js/naming-convention`,
      `typescript/ban-tslint-comment`, `typescript/no-for-in-array`, the `typeChecked` tier when on.
   3. `**/*.{js,mjs,cjs,jsx}`: `eslint-js/camelcase` and the js-only extras from v3.
-  4. `**/*.{jsx,tsx}` when `react`: `env: { browser: true }`, react rules, stylistic jsx rules,
-     `unicorn/filename-case` PascalCase with `ignore` for `index` and `routes`; then a second override for
-     `**/{use,with}*.{jsx,tsx}` with camelCase (replaces check-file; the `.less` naming rule of v3 never ran).
+  4. `**/*.{jsx,tsx}` when `react`: `plugins: ['react']`, `env: { browser: true }`, react rules including the
+     React Compiler family (off unless `reactCompiler`), stylistic jsx rules, and `check-file/filename-naming-convention`
+     with the v3 globs (PascalCase components, camelCase `use*` / `with*`, `index` and `routes` exempt; the
+     `.less` naming rule of v3 never ran).
   5. `**/*.tsx` when `react`: `no-empty-object-type` with `allowWithName: 'Props$'` as today.
   6. Test files for `jest` / `vitest` / `mocha` / `playwright`, using the v3 globs converted to brace form:
      `${testsDir}/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`, `**/__tests__/**/*...`, `**/*.{spec,test}.*`.
-     jest: `env: { jest: true }` plus the `DB`, `GQL`, `Setup`, `app` globals, oxlint's jest rules with the v3
-     tweaks. vitest: `env: { vitest: true }`, same tweaks. mocha: `env: { mocha: true }`, eslint-plugin-mocha
+     jest: `plugins: ['jest']`, `env: { jest: true }` plus the `DB`, `GQL`, `Setup`, `app` globals,
+     eslint-plugin-jest's recommended rules with the v3 tweaks, the extra rules oxlint enables by default off.
+     vitest: `plugins: ['vitest']`, `env: { vitest: true }`, same treatment. mocha: `env: { mocha: true }`, eslint-plugin-mocha
      recommended with the v3 tweaks, `prefer-arrow-callback` off in favour of `mocha/prefer-arrow-callback`.
      playwright: `flat/recommended` with `no-skipped-test`, `expect-expect` and `no-conditional-expect` off,
      mirroring the jest tweaks.
@@ -166,8 +170,9 @@ Returns a plain config object suitable for `defineConfig({ extends: [oxlint(opts
 
 ### 4.4 Rule mapping
 
-- ESLint core and typescript-eslint rules from v3: all native, same options. `radix` keeps `as-needed`.
-  `import/no-duplicates` uses `preferInline: true`.
+- ESLint core and typescript-eslint rules from v3: all native, same options, except `radix` (dropped, 11.10).
+  `import/no-duplicates` uses `preferInline: true`; `import/default` and `import/namespace` (on by default in
+  oxlint, need module resolution) off. `unicorn/no-thenable` off (11.11).
 - `@stylistic`: the 42 rules from v3 as `stylistic/*`, same options, `func-call-spacing` renamed to
   `function-call-spacing`, `jsx-props-no-multi-spaces` dropped, `generator-star-spacing` and `yield-star-spacing`
   switched to `after` (11.3). `jsx-self-closing-comp` and `jsx-curly-brace-presence` move to their native `react/`
@@ -177,9 +182,10 @@ Returns a plain config object suitable for `defineConfig({ extends: [oxlint(opts
   only; see 11.5.
 - `perfectionist`: `sort-named-imports` with `{ type: 'custom', alphabet, ignoreCase: false, ignoreAlias: true,
   groups: ['type-import', 'value-import'] }`, `sort-named-exports` likewise with `type-export`, `value-export`.
-- `react`: oxlint's native plugin replaces eslint-plugin-react recommended (`prop-types` does not exist and was
-  buggy), `react-hooks/rules-of-hooks` and `exhaustive-deps` as today, `jsx-no-useless-fragment` with
-  `allowExpressions`. The 12 React Compiler rules (`static-components`, `use-memo`, `void-use-memo`,
+- `react`: oxlint's native plugin replaces eslint-plugin-react recommended; of its 22 rules oxlint lacks
+  `prop-types` (buggy with TypeScript anyway), `no-deprecated`, `jsx-uses-react` and `jsx-uses-vars`. The other
+  18 are listed explicitly, `react-in-jsx-scope` included as in v3. `react-hooks/rules-of-hooks` and
+  `exhaustive-deps` as today, `jsx-no-useless-fragment` with `allowExpressions`. The 12 React Compiler rules (`static-components`, `use-memo`, `void-use-memo`,
   `preserve-manual-memoization`, `incompatible-library`, `immutability`, `globals`, `refs`, `set-state-in-effect`,
   `error-boundaries`, `purity`, `set-state-in-render`) are off unless `reactCompiler`, then at upstream severities
   promoted to error.
@@ -369,3 +375,22 @@ invocation). Against 120 s for the serial ESLint setup it replaces, and instant 
 6. `reportUnusedDisableDirectives` off in v4, so dual-name directives during the transition are not reported.
 7. oxfmt on directory runs formats every supported file type; the README documents js/ts-only `ignorePatterns` as
    the starting point.
+8. Plugin scoping: with `react`, `jest` and `vitest` in the top-level `plugins`, oxlint's `correctness` category
+   applied their rules to every file (React Compiler rules and `react-hooks` on plain ts files, `jest/valid-expect`
+   on test helpers under `src/`). Verified: a plugin listed in an override is additive for the matched files, its
+   rules must be listed in that override, and `categories` do not reach it. The three plugins now live in their
+   overrides with explicit rule lists, which is v3's per-file behaviour. Consequence for consumers, documented in
+   the README: an override that changes a rule of one of these plugins must list the plugin itself, otherwise
+   oxlint drops the rule silently. Also verified: a consumer's top-level `rules` cannot change a rule the shared
+   config sets in an override (overrides apply last), and `ignorePatterns` of the root config do not reach files
+   governed by a nested config.
+9. `eslint-plugin-check-file` is back: `unicorn/filename-case` rejects acronyms (`AIConversation.tsx`), which v3
+   accepted. The plugin loads without `eslint` and keeps the v3 rule name, so existing directives stay valid.
+10. `radix` dropped (fact list above); consumers who want oxlint's always-a-radix behaviour add `radix: 'error'`.
+11. `unicorn/no-thenable` off: it reports the JSON Schema `then` keyword in model schemas.
+12. `@stylistic/eslint-plugin` 3.1 (what v3 consumers had installed under `^3.0.1`) to 5.10: the `indent` rule
+    reports a few constructs 3.1 accepted, verified under ESLint with both versions and identical options, so the
+    plugin bridge is not involved. 70 findings in 14 files on 6,000, all auto-fixable.
+13. Not supported by oxlint, documented in the README: inline rule configuration comments
+    (`/* eslint no-console: [...] */`), and two rules reporting at another line than ESLint (`no-useless-catch`
+    at the `catch` clause, `prefer-const` at the declaration), which moves `eslint-disable-next-line` targets.

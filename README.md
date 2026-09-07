@@ -28,16 +28,30 @@ export default defineConfig({
   // your project's additions
   ignorePatterns: ['public', 'build'],
   rules: {
-    'react-hooks/exhaustive-deps': 'off',
+    'no-restricted-imports': ['error', { paths: ['lodash'] }],
   },
   overrides: [
-    { files: ['**/*.stories.tsx'], rules: { 'react/display-name': 'off' } },
+    { files: ['**/*.{jsx,tsx}'], plugins: ['react'], rules: { 'react-hooks/exhaustive-deps': 'off' } },
+    { files: ['**/*.stories.tsx'], plugins: ['react'], rules: { 'react/display-name': 'off' } },
+    { files: ['src/legacy/**'], rules: { 'typescript/no-namespace': 'off' } },
   ],
 });
 ```
 
 `oxlint(options)` returns a plain config object. Use it through `extends`; everything file-scoped (environments,
 globals, per-language rules) is inside `overrides`, so nothing is lost on the way.
+
+Two oxlint rules of thumb for your own additions:
+
+- The shared config sets its rules inside overrides (all files, ts files, jsx files, test files), and oxlint
+  applies overrides after top-level `rules`. A rule the shared config sets can only be changed by an override of
+  your own with matching `files`. Top-level `rules` are for rules the shared config does not touch, such as
+  `no-restricted-imports`.
+- The react, jest and vitest plugins are enabled inside the jsx and test-file overrides, so their rules apply to
+  those files only, as in v3 (a hook in `useThing.ts` is not checked by `react-hooks/*`, a helper in `src/` not by
+  `jest/*`). oxlint resolves an override's rules against the plugins listed in that override, so an override of
+  yours that changes a `react/*`, `react-hooks/*`, `jest/*` or `vitest/*` rule must list the plugin too, as the
+  first two overrides above do. Without it the rule is dropped without a message.
 
 | Option | Type | Default | Effect |
 |---|---|---|---|
@@ -103,6 +117,9 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 - Each package keeps its own `oxlint.config.ts` extending the shared config with its own ignores, rules and
   overrides. One `oxlint` run from the root discovers every nested config.
 - `options: { typeAware: true }` goes into the root config only.
+- `ignorePatterns` belong to the config that governs a file: they are not inherited through `extends`, and the
+  root config's patterns do not reach files under a package with its own config. v3's mocha block ignored
+  `__snapshots__` directories; a package with snapshot files adds `ignorePatterns: ['**/__snapshots__']` itself.
 
 ```json
 {
@@ -129,6 +146,8 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 |---|---|
 | `@ovos-media/coding-standard/eslint` | removed; `@ovos-media/coding-standard/oxlint` |
 | `eslint.config.js` | `oxlint.config.ts` |
+| `{ rules: { 'react-hooks/exhaustive-deps': 'off' } }` as a config block | `overrides: [{ files: ['**/*.{jsx,tsx}'], plugins: ['react'], rules: { ... } }]`, see above |
+| `ignores: ['__snapshots__']` in the mocha block | `ignorePatterns: ['**/__snapshots__']` in the package config |
 | `cypress: true` | removed; `playwright: true` |
 | `disableTypeChecked` | removed; files outside every tsconfig are skipped by type-aware rules |
 | `indent` | still on `oxlint()`, also on `oxfmt()` |
@@ -137,7 +156,13 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 | `@stylistic/generator-star-spacing`, `yield-star-spacing` | now `after` (`function* f`), what oxfmt and Prettier print |
 | `import/order` | oxfmt's `sortImports`, on demand |
 | `react/jsx-no-bind` | removed |
-| `check-file/filename-naming-convention` | `unicorn/filename-case` in the react overrides |
+| `react/prop-types`, `react/no-deprecated` | not implemented by oxlint; the rest of eslint-plugin-react recommended is |
+| `check-file/filename-naming-convention` | unchanged: [eslint-plugin-check-file](https://github.com/dukeluo/eslint-plugin-check-file) as a JS plugin, acronyms (`AIPanel.tsx`) stay valid |
+| `radix: ['error', 'as-needed']` (js files) | removed. ESLint 10 and oxlint now always require a radix, the opposite of v3; add `radix: 'error'` if wanted |
+| `@stylistic/jsx-props-no-multi-spaces` | not configured; it crashes under oxlint's plugin bridge on some files and v6 removes it |
+| `@stylistic/eslint-plugin` `^3.0.1` | `^5.10.0`; `indent` reports a few constructs v3 accepted (`=` followed by a line break before `!x && (`, members of an object type in a return type indented one level deeper), all auto-fixable |
+| `unicorn/no-thenable` (new in oxlint's correctness set) | off: `then` is also the JSON Schema keyword |
+| `no-unreachable`, `no-unsafe-optional-chaining` | now checked in ts files too. typescript-eslint's `eslint-recommended` preset turned `no-unreachable` off for ts files; TypeScript does not report it either |
 
 Disable directives for rules that moved to JS plugins need the oxlint name; native rules keep accepting the
 `@typescript-eslint/` spelling. A directive may list both names during a transition.
@@ -146,8 +171,15 @@ Disable directives for rules that moved to JS plugins need the oxlint name; nati
 |---|---|
 | `eslint-disable @typescript-eslint/naming-convention` | `eslint-disable typescript-js/naming-convention` |
 | `eslint-disable camelcase` | `eslint-disable eslint-js/camelcase` |
+| `eslint-disable @stylistic/key-spacing` (any `@stylistic/*`) | `eslint-disable stylistic/key-spacing` |
+| `eslint-disable mocha/no-global-tests` | `eslint-disable mocha/no-top-level-tests` (renamed in eslint-plugin-mocha 11) |
 | `eslint-disable react/jsx-no-bind` | remove |
 | `eslint-disable @typescript-eslint/no-explicit-any` | unchanged |
+| `/* eslint no-console: ["error", { "allow": ["debug"] }] */` (inline rule configuration) | not supported by oxlint; use a disable directive or an override in the config |
+
+Two rules report at a different line than ESLint did, so an existing `eslint-disable-next-line` may no longer
+cover them: `no-useless-catch` is reported at the `catch` clause (ESLint: at `try`), `prefer-const` at the `let`
+declaration (ESLint: at the assignment).
 
 ## Dependencies, and what an eslint-free package would take
 
@@ -173,7 +205,7 @@ Dropping them without losing a single check means, in this order:
    hooks, exports and pending tests; loses the `done`-callback rules and `no-mocha-arrows`.
 
 After all three, `eslint`, `@typescript-eslint/*` and `eslint-plugin-mocha` leave the tree; `@stylistic`,
-`oxlint-plugin-eslint` and `eslint-plugin-playwright` load without them.
+`oxlint-plugin-eslint`, `eslint-plugin-check-file` and `eslint-plugin-playwright` load without them.
 
 ## Development
 
