@@ -386,6 +386,8 @@ invocation). Against 120 s for the serial ESLint setup it replaces, and instant 
    governed by a nested config.
 9. `eslint-plugin-check-file` is back: `unicorn/filename-case` rejects acronyms (`AIConversation.tsx`), which v3
    accepted. The plugin loads without `eslint` and keeps the v3 rule name, so existing directives stay valid.
+   3.3.2 reports one camelCase `.tsx` file that the 2.8 consumers had installed let through (verified under ESLint
+   with both versions).
 10. `radix` dropped (fact list above); consumers who want oxlint's always-a-radix behaviour add `radix: 'error'`.
 11. `unicorn/no-thenable` off: it reports the JSON Schema `then` keyword in model schemas.
 12. `@stylistic/eslint-plugin` 3.1 (what v3 consumers had installed under `^3.0.1`) to 5.10: the `indent` rule
