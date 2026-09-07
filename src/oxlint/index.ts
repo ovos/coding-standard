@@ -5,7 +5,7 @@ import { globs, scriptExtensions, testGlobs, testHelperGlobs } from './globs.js'
 import { type OxlintOptions, resolveOptions } from './options.js';
 import { jsPlugins } from './plugins.js';
 import { coreRules, jsRules, tsRules } from './rules/core.js';
-import { reactHookFileRules, reactRules, reactTsxRules } from './rules/react.js';
+import { reactCompilerRules, reactRules, reactTsxRules } from './rules/react.js';
 import { stylisticJsxRules, stylisticRules } from './rules/stylistic.js';
 import { jestRules, mochaRules, playwrightRules, vitestRules } from './rules/tests.js';
 import { typeAwareRules } from './rules/type-aware.js';
@@ -26,14 +26,17 @@ const alphabet = '_-.@/#~$0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
  * Everything file-scoped (environments, globals, per-language rules) is expressed as overrides, because oxlint's
  * `extends` inherits rules, plugins, jsPlugins and overrides but drops top-level env, globals and settings.
  * `options.typeAware` is deliberately not set: oxlint honours it in the root config only.
+ *
+ * The react, jest and vitest plugins are enabled inside the overrides for the files they apply to, as v3 did
+ * with per-file config blocks. A plugin listed in an override is added for the matched files only, and the
+ * `categories` setting does not reach it, so every rule of such a plugin is listed explicitly. Enabling those
+ * plugins at the top level would apply their category rules to every file: jest's expect rules to test helpers,
+ * React Compiler and react-hooks rules to plain ts files.
  */
 export function oxlint(options: OxlintOptions = {}): OxlintConfig {
   const o = resolveOptions(options);
 
   const plugins: NonNullable<OxlintConfig['plugins']> = ['eslint', 'typescript', 'unicorn', 'oxc', 'import'];
-  if (o.react) plugins.push('react');
-  if (o.jest) plugins.push('jest');
-  if (o.vitest) plugins.push('vitest');
   if (o.a11y) plugins.push('jsx-a11y');
 
   const overrides: OxlintOverride[] = [
@@ -61,9 +64,10 @@ export function oxlint(options: OxlintOptions = {}): OxlintConfig {
       {
         files: [globs.jsx],
         env: { browser: true },
-        rules: { ...stylisticJsxRules(o.indent), ...reactRules(o.reactCompiler) },
+        plugins: ['react'],
+        jsPlugins: [jsPlugins.checkFile()],
+        rules: { ...stylisticJsxRules(o.indent), ...reactRules(), ...reactCompilerRules(o.reactCompiler) },
       },
-      { files: [globs.hooks], rules: reactHookFileRules() },
       { files: [globs.tsx], rules: reactTsxRules() },
     );
   }
@@ -73,12 +77,18 @@ export function oxlint(options: OxlintOptions = {}): OxlintConfig {
       files: testGlobs(o.testsDir),
       env: { jest: true },
       globals: { DB: 'readonly', GQL: 'readonly', Setup: 'readonly', app: 'readonly' },
+      plugins: ['jest'],
       rules: jestRules(),
     });
   }
 
   if (o.vitest) {
-    overrides.push({ files: testGlobs(o.testsDir), env: { vitest: true }, rules: vitestRules() });
+    overrides.push({
+      files: testGlobs(o.testsDir),
+      env: { vitest: true },
+      plugins: ['vitest'],
+      rules: vitestRules(),
+    });
   }
 
   if (o.mocha) {

@@ -55,6 +55,11 @@ export const jsPlugins = {
     specifier: fileURLToPath(new URL('../plugins/typescript.js', import.meta.url)),
   }),
 
+  // eslint-plugin-check-file (https://github.com/dukeluo/eslint-plugin-check-file) for component file naming.
+  // no runtime dependency on eslint. oxlint's unicorn/filename-case rejects acronyms (AIConversation.tsx),
+  // check-file's PASCAL_CASE accepts them, as v3 did
+  checkFile: (): JsPlugin => ({ name: 'check-file', specifier: resolvePlugin('eslint-plugin-check-file') }),
+
   // eslint-plugin-mocha 12 (https://github.com/lo1tuma/eslint-plugin-mocha) imports `eslint` at runtime.
   // oxlint has no mocha plugin; its jest rules would cover focused tests, identical titles and async suites
   // syntactically, but none of the done-callback rules.

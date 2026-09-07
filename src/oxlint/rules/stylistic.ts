@@ -112,7 +112,8 @@ export function stylisticJsxRules(indent: Indent): Rules {
     'stylistic/jsx-first-prop-new-line': 'error',
     'stylistic/jsx-function-call-newline': 'error',
     'stylistic/jsx-indent-props': ['error', indent],
-    'stylistic/jsx-props-no-multi-spaces': 'error',
+    // jsx-props-no-multi-spaces is not configured: it crashes under oxlint's plugin bridge on some jsx files,
+    // and stylistic v6 removes it (folded into no-multi-spaces)
     'stylistic/jsx-quotes': 'error',
     'stylistic/jsx-tag-spacing': [
       'error',

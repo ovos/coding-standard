@@ -18,15 +18,20 @@ test('base config: naming, camelcase, stylistic and perfectionist fire; clean fi
   has(found, 'src/style.ts:stylistic/generator-star-spacing');
   has(found, 'src/sorting.ts:perfectionist/sort-named-imports');
   has(found, 'src/sorting.ts:perfectionist/sort-named-exports');
+  // radix is not part of the standard any more (see rules/core.ts); neither flavour of it may fire
+  lacks(found, 'src/legacy.js:radix');
+  lacks(found, 'src/legacy.js:eslint-js/radix');
   cleanFile(found, 'src/clean.ts');
 });
 
-test('react config: file naming, hooks and jsx quotes', () => {
+test('react config: file naming, hooks and jsx quotes; react rules stay out of plain ts files', () => {
   const found = runOxlint('react', oxlint({ react: true }));
-  has(found, 'src/badName.tsx:unicorn/filename-case');
-  lacks(found, 'src/useThing.tsx:unicorn/filename-case');
+  has(found, 'src/badName.tsx:check-file/filename-naming-convention');
+  lacks(found, 'src/useThing.tsx:check-file/filename-naming-convention');
+  cleanFile(found, 'src/AIThing.tsx');
   has(found, 'src/useThing.tsx:react-hooks/exhaustive-deps');
   has(found, 'src/Card.tsx:stylistic/jsx-quotes');
+  cleanFile(found, 'src/hook.ts');
 });
 
 test('test frameworks: focused tests are errors, helper files are exempt from no-exports', () => {
@@ -40,5 +45,7 @@ test('test frameworks: focused tests are errors, helper files are exempt from no
     const found = runOxlint('tests', oxlint({ [option]: true, testsDir: 'spec' }));
     has(found, `spec/focused.spec.ts:${rule}`);
     lacks(found, 'spec/_helper.ts:mocha/no-exports');
+    // test framework plugins are scoped to test files
+    cleanFile(found, 'src/helper.ts');
   }
 });

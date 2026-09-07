@@ -22,6 +22,6 @@ test('plugin names are the ones the rules reference', () => {
     Object.values(jsPlugins)
       .map((factory) => factory().name)
       .sort(),
-    ['eslint-js', 'mocha', 'perfectionist', 'playwright', 'stylistic', 'typescript-js'],
+    ['check-file', 'eslint-js', 'mocha', 'perfectionist', 'playwright', 'stylistic', 'typescript-js'],
   );
 });

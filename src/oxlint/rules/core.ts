@@ -18,13 +18,13 @@ const noUnusedVars: Rules['no-unused-vars'] = [
 // eslint:recommended and typescript-eslint recommended; the ones it does not enable by default are listed here.
 export function coreRules(consoleUsage: ConsoleUsage): Rules {
   return {
-    // eslint:recommended rules oxlint has but does not enable by default
+    // eslint:recommended (eslint 9) rules oxlint has but does not enable by default. eslint 10 added
+    // preserve-caught-error and no-useless-assignment to recommended; they are not part of this standard yet
     'no-case-declarations': 'error',
     'no-empty': 'error',
     'no-prototype-builtins': 'error',
     'no-regex-spaces': 'error',
     'no-unexpected-multiline': 'error',
-    'preserve-caught-error': 'error',
     // eslint:recommended overrides
     'no-unused-expressions': noUnusedExpressions,
     'no-unused-vars': noUnusedVars,
@@ -36,6 +36,10 @@ export function coreRules(consoleUsage: ConsoleUsage): Rules {
     curly: ['error', 'multi-line'],
     eqeqeq: 'error',
     'import/no-duplicates': ['error', { preferInline: true }],
+    // on by default with oxlint's import plugin but not part of v3; they need module resolution and report
+    // esm/cjs interop and computed namespace access
+    'import/default': 'off',
+    'import/namespace': 'off',
     'no-array-constructor': 'error',
     'no-else-return': 'error',
     'no-eval': 'error',
@@ -49,7 +53,9 @@ export function coreRules(consoleUsage: ConsoleUsage): Rules {
     'prefer-const': 'error',
     'prefer-rest-params': 'error',
     'prefer-spread': 'error',
-    radix: ['error', 'as-needed'],
+    // in oxlint's correctness category, but `then` is also the JSON Schema keyword (if/then/else) used in model
+    // schemas; the rule cannot tell the two apart
+    'unicorn/no-thenable': 'off',
     ...(consoleUsage === 'ban' && { 'no-console': 'error' }),
     ...(consoleUsage === 'ban-log' && { 'no-console': ['error', { allow: ['error', 'warn', 'info'] }] }),
   };
@@ -76,5 +82,10 @@ export function tsRules(): Rules {
 export function jsRules(): Rules {
   return {
     'eslint-js/camelcase': 'error',
+    // v3 had `radix: ['error', 'as-needed']` here: a redundant radix 10 was an error, a missing radix was not.
+    // ESLint 10 dropped that mode (`as-needed` is accepted but every call without a radix is reported,
+    // https://eslint.org/docs/latest/rules/radix) and oxlint's native rule did the same in v1.49.0
+    // (https://oxc.rs/docs/guide/usage/linter/rules/eslint/radix.html). the opposite of the v3 rule is not this
+    // standard's call to make, so radix is not configured; consumers who want it add `radix: 'error'`
   };
 }

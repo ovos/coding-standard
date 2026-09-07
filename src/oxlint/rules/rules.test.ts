@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { coreRules, jsRules, tsRules } from './core.js';
-import { reactRules } from './react.js';
+import { reactCompilerRules, reactRules } from './react.js';
 import { stylisticJsxRules, stylisticRules } from './stylistic.js';
 import { jestRules, mochaRules, playwrightRules, vitestRules } from './tests.js';
 import { typeAwareRules } from './type-aware.js';
@@ -17,7 +17,8 @@ test('no rule is configured at warn', () => {
     jsRules(),
     stylisticRules(2),
     stylisticJsxRules(2),
-    reactRules(true),
+    reactRules(),
+    reactCompilerRules(true),
     typeAwareRules(true),
     jestRules(),
     vitestRules(),
@@ -36,14 +37,21 @@ test('console option maps to no-console', () => {
 test('stylistic indent option flows into the indent rules', () => {
   assert.deepEqual((stylisticRules('tab')['stylistic/indent'] as unknown[]).slice(0, 2), ['error', 'tab']);
   assert.deepEqual(stylisticJsxRules(4)['stylistic/jsx-indent-props'], ['error', 4]);
-  // v5 rule names; v6 removes jsx-props-no-multi-spaces (see stylistic.ts)
+  // v5 rule name (v6 keeps it); jsx-props-no-multi-spaces is not configured (see stylistic.ts)
   assert.equal(stylisticRules(2)['stylistic/function-call-spacing'], 'error');
-  assert.equal(stylisticJsxRules(2)['stylistic/jsx-props-no-multi-spaces'], 'error');
+  assert.equal(stylisticJsxRules(2)['stylistic/jsx-props-no-multi-spaces'], undefined);
 });
 
 test('react compiler family is off by default and on by option', () => {
-  assert.equal(reactRules(false)['react/set-state-in-effect'], 'off');
-  assert.equal(reactRules(true)['react/set-state-in-effect'], 'error');
+  assert.equal(reactCompilerRules(false)['react/set-state-in-effect'], 'off');
+  assert.equal(reactCompilerRules(true)['react/set-state-in-effect'], 'error');
+  assert.equal(reactRules()['react/set-state-in-effect'], undefined);
+});
+
+test('component file naming uses check-file, which accepts acronyms', () => {
+  const rule = reactRules()['check-file/filename-naming-convention'] as unknown[];
+  assert.equal(rule[0], 'error');
+  assert.deepEqual(Object.values(rule[1] as Record<string, string>), ['PASCAL_CASE', 'CAMEL_CASE']);
 });
 
 test('type-aware tier keeps no-for-in-array on and everything else explicit', () => {
