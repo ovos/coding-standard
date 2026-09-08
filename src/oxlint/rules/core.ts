@@ -85,9 +85,11 @@ export function jsRules(): Rules {
   return {
     'eslint-js/camelcase': 'error',
     // v3 had `radix: ['error', 'as-needed']` here: a redundant radix 10 was an error, a missing radix was not.
-    // ESLint 10 dropped that mode (`as-needed` is accepted but every call without a radix is reported,
-    // https://eslint.org/docs/latest/rules/radix) and oxlint's native rule did the same in v1.49.0
-    // (https://oxc.rs/docs/guide/usage/linter/rules/eslint/radix.html). the opposite of the v3 rule is not this
-    // standard's call to make, so radix is not configured; consumers who want it add `radix: 'error'`
+    // ESLint 10 deprecated both options and made every call without a radix an error, because 10 was never the
+    // default radix (https://github.com/eslint/eslint/issues/19916,
+    // https://eslint.org/docs/latest/use/migrate-to-10.0.0#deprecated-options-of-the-radix-rule); oxlint's native rule
+    // followed in v1.49.0 (https://oxc.rs/docs/guide/usage/linter/rules/eslint/radix.html). the opposite of the
+    // v3 rule is not this standard's call to make, so radix is not configured; consumers who want it add
+    // `radix: 'error'`
   };
 }

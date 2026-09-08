@@ -158,7 +158,7 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 | `react/jsx-no-bind` | removed |
 | `react/prop-types`, `react/no-deprecated` | not implemented by oxlint; the rest of eslint-plugin-react recommended is |
 | `check-file/filename-naming-convention` | same rule and globs, [eslint-plugin-check-file](https://github.com/dukeluo/eslint-plugin-check-file) 2.x to 3.3 as a JS plugin; acronyms (`AIPanel.tsx`) stay valid, a camelCase `.tsx` file that 2.x let through is reported |
-| `radix: ['error', 'as-needed']` (js files) | removed. ESLint 10 and oxlint now always require a radix, the opposite of v3; add `radix: 'error'` if wanted |
+| `radix: ['error', 'as-needed']` (js files) | removed. ESLint 10 deprecated the option and always requires a radix ([eslint #19916](https://github.com/eslint/eslint/issues/19916)), oxlint 1.49 followed; the opposite of v3. Add `radix: 'error'` if wanted |
 | `@stylistic/jsx-props-no-multi-spaces` | not configured; it crashes under oxlint's plugin bridge on some files and v6 removes it |
 | `@stylistic/eslint-plugin` `^3.0.1` | `^5.10.0`; `indent` reports a few constructs v3 accepted (`=` followed by a line break before `!x && (`, members of an object type in a return type indented one level deeper), all auto-fixable |
 | `unicorn/no-thenable` (new in oxlint's correctness set) | off: `then` is also the JSON Schema keyword |
