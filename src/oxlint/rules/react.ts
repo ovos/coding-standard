@@ -63,8 +63,14 @@ export function reactRules(): Rules {
     // accepted; storybook `render: () => { useState() }` patterns need a named component function
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'error',
-    // component files are PascalCase, hooks and higher-order components (use*, with*) camelCase, index and routes
-    // files exempt. eslint-plugin-check-file accepts acronyms (AIPanel.tsx); unicorn/filename-case does not
+  };
+}
+
+// component files are PascalCase, hooks and higher-order components (use*, with*) camelCase, index and routes
+// files exempt. eslint-plugin-check-file accepts acronyms (AIPanel.tsx); unicorn/filename-case does not.
+// configured for every file, as in v3: the rule's own globs limit it to jsx and tsx files, react option or not
+export function fileNamingRules(): Rules {
+  return {
     'check-file/filename-naming-convention': [
       'error',
       {

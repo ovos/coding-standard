@@ -25,6 +25,8 @@ export function coreRules(consoleUsage: ConsoleUsage): Rules {
     'no-prototype-builtins': 'error',
     'no-regex-spaces': 'error',
     'no-unexpected-multiline': 'error',
+    // eslint:recommended rule oxlint does not implement; ESLint's own through oxlint-plugin-eslint
+    'eslint-js/no-octal': 'error',
     // eslint:recommended overrides
     'no-unused-expressions': noUnusedExpressions,
     'no-unused-vars': noUnusedVars,
@@ -84,6 +86,11 @@ export function tsRules(): Rules {
 export function jsRules(): Rules {
   return {
     'eslint-js/camelcase': 'error',
+    // eslint:recommended rules that typescript-eslint's eslint-recommended preset turned off for ts files in v3
+    // (the compiler reports them there), so they apply to js files only. oxlint has no no-dupe-args
+    'no-redeclare': 'error',
+    'no-undef': 'error',
+    'eslint-js/no-dupe-args': 'error',
     // v3 had `radix: ['error', 'as-needed']` here: a redundant radix 10 was an error, a missing radix was not.
     // ESLint 10 deprecated both options and made every call without a radix an error, because 10 was never the
     // default radix (https://github.com/eslint/eslint/issues/19916,

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { coreRules, jsRules, tsRules } from './core.js';
-import { reactCompilerRules, reactRules } from './react.js';
+import { fileNamingRules, reactCompilerRules, reactRules } from './react.js';
 import { stylisticJsxRules, stylisticRules } from './stylistic.js';
 import { jestRules, mochaRules, playwrightRules, vitestRules } from './tests.js';
 import { typeAwareRules } from './type-aware.js';
@@ -55,7 +55,7 @@ test('react compiler family is off by default and on by option', () => {
 });
 
 test('component file naming uses check-file, which accepts acronyms', () => {
-  const rule = reactRules()['check-file/filename-naming-convention'] as unknown[];
+  const rule = fileNamingRules()['check-file/filename-naming-convention'] as unknown[];
   assert.equal(rule[0], 'error');
   assert.deepEqual(Object.values(rule[1] as Record<string, string>), ['PASCAL_CASE', 'CAMEL_CASE']);
 });

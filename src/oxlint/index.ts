@@ -6,7 +6,7 @@ import { globs, scriptExtensions, testGlobs, testHelperGlobs } from './globs.js'
 import { type OxlintOptions, resolveOptions } from './options.js';
 import { jsPlugins } from './plugins.js';
 import { coreRules, jsRules, tsRules } from './rules/core.js';
-import { reactCompilerRules, reactRules, reactTsxRules } from './rules/react.js';
+import { fileNamingRules, reactCompilerRules, reactRules, reactTsxRules } from './rules/react.js';
 import { stylisticJsxRules, stylisticRules } from './rules/stylistic.js';
 import { jestRules, mochaRules, playwrightRules, vitestRules } from './rules/tests.js';
 import { typeAwareRules } from './rules/type-aware.js';
@@ -81,7 +81,6 @@ export function oxlint(options: OxlintOptions = {}): OxlintConfig {
         files: [globs.jsx],
         env: { browser: true },
         plugins: ['react'],
-        jsPlugins: [jsPlugins.checkFile()],
         rules: {
           ...stylisticJsxRules(o.indent),
           ...reactRules(),
@@ -141,8 +140,10 @@ export function oxlint(options: OxlintOptions = {}): OxlintConfig {
       jsPlugins.perfectionist(),
       jsPlugins.eslintJs(),
       jsPlugins.typescriptJs(),
+      jsPlugins.checkFile(),
     ],
     rules: {
+      ...fileNamingRules(),
       'perfectionist/sort-named-imports': [
         'error',
         {

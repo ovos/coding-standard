@@ -44,24 +44,34 @@ export function jestRules(): Rules {
 }
 
 // @vitest/eslint-plugin recommended listed explicitly, plus the v3 additions (no-focused-tests, no-console)
+// @vitest/eslint-plugin (https://github.com/vitest-dev/eslint-plugin-vitest) recommended as of 1.6.27, which is
+// what v3's `^1.1.25` range installs today, all at error, plus the v3 overrides. unlike the jest set, v3 relaxed
+// nothing here: the expect rules stay on
 export function vitestRules(): Rules {
   return {
-    'vitest/expect-expect': 'off',
+    'vitest/expect-expect': 'error',
     'vitest/no-commented-out-tests': 'error',
+    'vitest/no-conditional-expect': 'error',
+    'vitest/no-focused-tests': 'error',
     'vitest/no-identical-title': 'error',
     'vitest/no-import-node-test': 'error',
+    'vitest/no-interpolation-in-snapshots': 'error',
+    'vitest/no-mocks-import': 'error',
+    'vitest/no-standalone-expect': 'error',
+    'vitest/no-unneeded-async-expect-function': 'error',
+    'vitest/prefer-called-exactly-once-with': 'error',
     'vitest/require-local-test-context-for-concurrent-snapshots': 'error',
     'vitest/valid-describe-callback': 'error',
     'vitest/valid-expect': 'error',
+    'vitest/valid-expect-in-promise': 'error',
+    // allow titles to be parameterized, using variables or ternaries
     'vitest/valid-title': ['error', { ignoreTypeOfDescribeName: true }],
-    'vitest/prefer-to-be': 'off',
-    'vitest/no-focused-tests': 'error',
-    // on by default in oxlint's vitest plugin but not part of @vitest/eslint-plugin's recommended set
-    'vitest/hoisted-apis-on-top': 'off',
-    'vitest/no-conditional-expect': 'off',
-    'vitest/no-conditional-tests': 'off',
+    // a warning upstream; this standard has no warnings and the jest counterpart is off too
     'vitest/no-disabled-tests': 'off',
-    'vitest/no-standalone-expect': 'off',
+    'vitest/prefer-to-be': 'off',
+    // on by default in oxlint's vitest plugin but not part of the recommended set
+    'vitest/hoisted-apis-on-top': 'off',
+    'vitest/no-conditional-tests': 'off',
     'vitest/prefer-snapshot-hint': 'off',
     'vitest/require-awaited-expect-poll': 'off',
     'vitest/require-mock-type-parameters': 'off',
@@ -78,6 +88,8 @@ export function vitestRules(): Rules {
 export function mochaRules(): Rules {
   return {
     'mocha/consistent-structure': ['error', { disallowDuplicateHooks: true }],
+    'mocha/consistent-spacing-between-blocks': 'error',
+    'mocha/max-top-level-suites': 'error',
     'mocha/handle-done-callback': 'error',
     'mocha/no-async-and-done': 'error',
     'mocha/no-async-in-sync-tests': 'error',

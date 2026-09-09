@@ -17,7 +17,7 @@ const overrideFor = (config: ReturnType<typeof oxlint>, glob: string) =>
   overrides(config).find((o) => o.files.includes(glob));
 const pluginNames = (list: unknown) => (list as { name: string }[]).map((p) => p.name);
 
-test('defaults: native plugins, correctness as error, four js plugins, type-aware on', () => {
+test('defaults: native plugins, correctness as error, five js plugins, type-aware on', () => {
   const config = oxlint();
   assert.deepEqual(config.plugins, ['eslint', 'typescript', 'unicorn', 'oxc', 'import']);
   assert.deepEqual(config.categories, { correctness: 'error' });
@@ -26,7 +26,13 @@ test('defaults: native plugins, correctness as error, four js plugins, type-awar
     'perfectionist',
     'eslint-js',
     'typescript-js',
+    'check-file',
   ]);
+  // file naming is configured for every file, as in v3; its globs only match jsx and tsx files
+  assert.equal(
+    (config.rules?.['check-file/filename-naming-convention'] as unknown[] | undefined)?.[0],
+    'error',
+  );
   // inherited into the consumer's root config through extends, which is where oxlint reads it
   assert.deepEqual(config.options, { typeAware: true });
   assert.ok(process.env.OXLINT_TSGOLINT_PATH?.endsWith('/oxlint-tsgolint/bin/tsgolint.js'));
@@ -55,11 +61,7 @@ test('react option enables the react plugin for jsx files only, with browser env
   assert.deepEqual(jsx?.env, { browser: true });
   assert.equal(jsx?.rules?.['react-hooks/exhaustive-deps'], 'error');
   assert.equal(jsx?.rules?.['react/react-in-jsx-scope'], 'error');
-  assert.deepEqual(pluginNames(jsx?.jsPlugins), ['check-file']);
-  assert.equal(
-    (jsx?.rules?.['check-file/filename-naming-convention'] as unknown[] | undefined)?.[0],
-    'error',
-  );
+  assert.equal(jsx?.jsPlugins, undefined);
   assert.equal(overrideFor(config, '**/{use,with}*.{jsx,tsx}'), undefined);
   assert.deepEqual(
     overrideFor(config, '**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}')?.rules?.['no-console'],
