@@ -15,8 +15,10 @@ const cleanFile = (found: Set<string>, file: string) =>
     `expected no findings in ${file}:\n  ${list(found)}`,
   );
 
-test('base config: naming, camelcase, stylistic and perfectionist fire; clean file is clean', () => {
+test('base config: naming, camelcase, stylistic, perfectionist and the type-aware rule fire; clean file is clean', () => {
   const found = runOxlint('base', oxlint());
+  // type-aware through tsgolint, on by default
+  has(found, 'src/forIn.ts:typescript/no-for-in-array');
   has(found, 'src/naming.ts:typescript-js/naming-convention');
   has(found, 'src/legacy.js:eslint-js/camelcase');
   has(found, 'src/style.ts:stylistic/quotes');

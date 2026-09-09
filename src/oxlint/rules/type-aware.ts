@@ -1,8 +1,9 @@
 import type { Rules } from './core.js';
 
-// type-aware rules run only when the project's ROOT oxlint config sets `options: { typeAware: true }` and
-// oxlint-tsgolint (https://github.com/oxc-project/tsgolint) is installed. without that they are silent, so they can
-// be listed unconditionally.
+// type-aware rules run through oxlint-tsgolint (https://github.com/oxc-project/tsgolint), a dependency of this
+// package, switched on by the `options.typeAware` the shared config carries into the consumer's root config (see
+// index.ts). a consumer that turns the switch off gets silence from these rules, not errors, so they can be listed
+// unconditionally.
 // runtime-bug catchers: typescript-eslint's recommended-type-checked minus the no-unsafe-* family (unusable while
 // no-explicit-any is off) and the judgement calls (unbound-method, require-await, restrict-template-expressions).
 const catchers = [

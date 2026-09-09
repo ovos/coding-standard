@@ -10,6 +10,7 @@ import { reactCompilerRules, reactRules, reactTsxRules } from './rules/react.js'
 import { stylisticJsxRules, stylisticRules } from './rules/stylistic.js';
 import { jestRules, mochaRules, playwrightRules, vitestRules } from './rules/tests.js';
 import { typeAwareRules } from './rules/type-aware.js';
+import { pointOxlintAtTsgolint } from './tsgolint.js';
 
 export type { OxlintOptions } from './options.js';
 
@@ -25,8 +26,14 @@ const alphabet = '_-.@/#~$0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
  *   export default defineConfig({ extends: [oxlint({ react: true, vitest: true })], ignorePatterns: ['public'] });
  *
  * Everything file-scoped (environments, globals, per-language rules) is expressed as overrides, because oxlint's
- * `extends` inherits rules, plugins, jsPlugins and overrides but drops top-level env, globals and settings.
- * `options.typeAware` is deliberately not set: oxlint honours it in the root config only.
+ * `extends` inherits rules, plugins, jsPlugins, options and overrides but drops top-level env, globals and
+ * settings.
+ *
+ * Type-aware linting is on: `options.typeAware` is inherited into the consumer's root config, the only place
+ * oxlint reads it, and the same option inherited into nested configs is ignored, so one `extends` per config is
+ * all a monorepo needs. `typescript/no-for-in-array` therefore runs out of the box, as it did in v3; the
+ * `typeChecked` tier stays opt-in. A consumer turns it off with `options: { typeAware: false }` in its root
+ * config (verified to win over the inherited value).
  *
  * The react, jest and vitest plugins are enabled inside the overrides for the files they apply to, as v3 did
  * with per-file config blocks. A plugin listed in an override is added for the matched files only, and the
@@ -37,6 +44,7 @@ const alphabet = '_-.@/#~$0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
  */
 export function oxlint(options: OxlintOptions = {}): OxlintConfig {
   const o = resolveOptions(options);
+  pointOxlintAtTsgolint();
 
   const plugins: NonNullable<OxlintConfig['plugins']> = [
     'eslint',
@@ -127,6 +135,7 @@ export function oxlint(options: OxlintOptions = {}): OxlintConfig {
   return {
     plugins,
     categories: { correctness: 'error' },
+    options: { typeAware: true },
     jsPlugins: [
       jsPlugins.stylistic(),
       jsPlugins.perfectionist(),

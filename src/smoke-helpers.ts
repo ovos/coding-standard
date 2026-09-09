@@ -5,6 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { tsgolintLauncher } from './oxlint/tsgolint.js';
+
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const fixturesRoot = path.join(packageRoot, 'test', 'fixtures');
 
@@ -20,12 +22,15 @@ export function runOxlint(fixture: string, config: object): Set<string> {
   try {
     fs.cpSync(path.join(fixturesRoot, fixture), dir, { recursive: true });
     fs.writeFileSync(path.join(dir, '.oxlintrc.json'), JSON.stringify(config));
+    // the temp dir has no node_modules above it, so oxlint cannot find tsgolint by itself; a consumer's config
+    // module sets this variable at runtime, the json config written here cannot
     const result = spawnSync(
       process.execPath,
       [oxlintBin, '--disable-nested-config', '-f', 'json', '.'],
       {
         cwd: dir,
         encoding: 'utf8',
+        env: { ...process.env, OXLINT_TSGOLINT_PATH: process.env.OXLINT_TSGOLINT_PATH ?? tsgolintLauncher },
       },
     );
     if (!result.stdout.trim().startsWith('{')) {

@@ -37,7 +37,7 @@ under their current serial ESLint setup; the largest alone takes 36 s.
 | 1 | `@typescript-eslint/naming-convention`, `camelcase` | Keep both. naming-convention runs as the upstream rule through a 40-line wrapper that supplies empty `parserServices` (the approach of https://github.com/seek-oss/oxc-config-seek/pull/13); `camelcase` via `oxlint-plugin-eslint` (https://github.com/oxc-project/oxc, rule `eslint-js/camelcase`). |
 | 2 | Baseline rule set | oxlint's `correctness` category stays on with `categories: { correctness: 'error' }`; the 17 recommended rules oxlint has but does not enable by default are listed explicitly. Errors only, no warnings, as today. |
 | 2c | React Compiler rules | Behind a `reactCompiler` option, default off. |
-| 3 | `no-for-in-array` | Always listed. It runs only when the consumer's root config sets `options.typeAware: true`, which needs `oxlint-tsgolint` (https://github.com/oxc-project/tsgolint). |
+| 3 | `no-for-in-array` | Always on, as in v3. The shared config carries `options.typeAware: true` into the consumer's root config through `extends` and `oxlint-tsgolint` (https://github.com/oxc-project/tsgolint) is a regular dependency; nothing to configure (11.14). |
 | 3b | Other type-aware rules | Behind a `typeChecked` option, default off: the 15 runtime-bug catchers from typescript-eslint's `recommended-type-checked` (https://github.com/typescript-eslint/typescript-eslint) plus `no-unnecessary-type-assertion`, minus the `no-unsafe-*` family and the judgement calls. |
 | 4 | Named-specifier sorting | Keep `perfectionist/sort-named-imports` and `sort-named-exports` (https://github.com/azat-io/eslint-plugin-perfectionist) as a JS plugin, with the v5 `groups` option. |
 | 5 | `react/jsx-no-bind` | Dropped. Not in any recommended set; every hit in the validation monorepo was suppressed inline. |
@@ -45,7 +45,7 @@ under their current serial ESLint setup; the largest alone takes 36 s.
 | 6a | Trailing commas | `all` in the oxfmt and Prettier exports (oxfmt's and Prettier 3's default). The stylistic `comma-dangle` rule keeps `functions: 'only-multiline'`, so both `es5`-style and `all`-style code pass lint. |
 | 6b | package.json sorting | oxfmt's default (on). Consumers can disable it globally, per package via `overrides`, or via a nested config; all three verified. |
 | 7 | jsx-a11y | Behind an `a11y` option, default off. oxlint's built-in plugin reports 600 findings on the three React packages of the validation monorepo. |
-| 8 | Dependency model | `oxlint` and `oxfmt` are regular dependencies, like `eslint` today. `oxlint-tsgolint` is an optional peer dependency (open item 11.1, resolved). |
+| 8 | Dependency model | `oxlint`, `oxfmt` and `oxlint-tsgolint` are regular dependencies, like `eslint` today. No peer dependencies (11.1, revised in 11.14). |
 | - | Cypress | The `cypress` option is removed; a `playwright` option backed by `eslint-plugin-playwright` (https://github.com/mskelton/eslint-plugin-playwright) replaces it. `eslint-plugin-chai-friendly` goes with it. |
 | - | Prettier in consumers | Kept as an export for on-demand use. A consumer keeps a root `prettier.config.js` importing from this package, drops `prettier` from its own dependencies, and points any code generator that runs `prettier --write` at `oxfmt` instead. |
 
@@ -54,9 +54,15 @@ under their current serial ESLint setup; the largest alone takes 36 s.
 - oxlint's `extends` inherits `rules`, `plugins`, `jsPlugins`, `options` and `overrides`. Top-level `env`, `globals`,
   `settings`, `ignorePatterns` and `categories` are dropped. `env` and `globals` placed inside an `overrides` entry
   are inherited and effective. The shared config therefore expresses everything file-scoped as overrides.
-- `options.typeAware` is honoured only in the consumer's root config. Inherited through `extends` into a nested
-  config it is silently ignored. Type-aware rules are silent no-ops when the switch is off, so they can be listed
-  unconditionally.
+- `options.typeAware` is honoured only in the consumer's root config, and `extends` carries it there: a root
+  config that extends a config object with `options: { typeAware: true }` runs type-aware, with or without the
+  same option in nested configs (verified; a nested config alone cannot turn it on). The consumer's own
+  `options: { typeAware: false }` in the root config wins over the inherited value. Type-aware rules are silent
+  no-ops when the switch is off, so they can be listed unconditionally.
+- oxlint finds the tsgolint executable via `OXLINT_TSGOLINT_PATH`, else `node_modules/.bin/tsgolint` next to the
+  first package.json above the working directory, else PATH (`crates/oxc_linter/src/tsgolint.rs`). With none of
+  them it aborts the run. A config module evaluated by oxlint can set the variable for the running process
+  (verified: the value reaches the Rust side that spawns tsgolint).
 - Files not covered by any tsconfig (`vite.config.ts`, lint-staged configs) are skipped by type-aware rules without
   error. The v3 `disableTypeChecked` option has no equivalent because it is not needed.
 - JS plugins are deduplicated by resolved file path (https://github.com/oxc-project/oxc/issues/26017). Two nested
@@ -111,7 +117,7 @@ Removed from v3: `@typescript-eslint/parser`, `@typescript-eslint/utils`, `@vite
 `eslint-import-resolver-*`, `eslint-plugin-import-x`, `eslint-plugin-react`, `eslint-plugin-react-hooks`,
 `eslint-plugin-jest`, `eslint-plugin-cypress`, `eslint-plugin-chai-friendly`, `globals`, `@eslint/js`. `prettier` is no longer a dependency at all; the export is typed inline.
 
-`oxlint-tsgolint`: optional peer dependency (`peerDependenciesMeta`), documented next to the root switch.
+`oxlint-tsgolint` ^7.0.2001: regular dependency (11.14). No peer dependencies.
 
 ### 4.2 `oxlint(options)`
 
@@ -142,6 +148,7 @@ Returns a plain config object suitable for `defineConfig({ extends: [oxlint(opts
   `vitest` are enabled inside their overrides (see 11.8): a plugin listed in an override is added for the matched
   files only and `categories` do not reach it, so those overrides list every rule explicitly.
 - `categories: { correctness: 'error' }`.
+- `options: { typeAware: true }`, effective through the consumer's root `extends` (11.14).
 - `jsPlugins`, each resolved to an absolute file path with `fileURLToPath(import.meta.resolve(...))` from inside
   this package: `stylistic`, `perfectionist`, `eslint-js` (oxlint-plugin-eslint), `typescript-js` (this package's
   naming wrapper), `mocha` when `mocha`, `playwright` when `playwright`.
@@ -299,7 +306,7 @@ Monorepo rules, all verified:
   unaffected.
 - One `oxlint` run from the root discovers all nested `oxlint.config.ts` files and lints everything in one process.
   Per-package `lint` scripts call the root binary.
-- `options: { typeAware: true }` goes in the root config only, once the tsconfigs are TypeScript 7 clean.
+- type-aware mode is on through the root config's `extends` (11.14); it needs TypeScript 7 clean tsconfigs.
 - Scripts: `"lint": "oxlint"`, `"lint:fix": "oxlint --fix"`; lint-staged: `'*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}':
   'oxlint --fix'`. No `oxfmt --check` under 6c.
 - Editors: the oxc VS Code extension `oxc.oxc-vscode` (https://github.com/oxc-project/oxc-vscode) for diagnostics,
@@ -325,7 +332,7 @@ Two steps before the switch, then the switch:
    single root `oxlint` (JSON output via `-f json` for CI reporting), lint-staged to `oxlint --fix`, rename disable
    directives (`@typescript-eslint/naming-convention` gets `typescript-js/naming-convention` added alongside;
    `camelcase` becomes `eslint-js/camelcase`; `react/jsx-no-bind` directives removed), run `oxlint --fix` for the
-   stylistic v6 findings and the perfectionist v5 reorders, flip `typeAware` on at the root.
+   stylistic v6 findings and the perfectionist v5 reorders; type-aware mode is on already through the root `extends` (11.14).
 
 ## 7. Testing in this repo
 
@@ -361,7 +368,8 @@ invocation). Against 120 s for the serial ESLint setup it replaces, and instant 
 
 ## 11. Open items, resolved for implementation
 
-1. `oxlint-tsgolint`: optional peer dependency, so consumers that never enable type-aware mode do not install 21 MB.
+1. `oxlint-tsgolint`: was an optional peer dependency, so consumers that never enable type-aware mode would not
+   install 21 MB. Superseded by 11.14: a regular dependency, type-aware on by default.
 2. Stylistic: pinned to `^5.10.0` after implementation found that v6 deprecates `array-bracket-spacing` and
    `object-curly-spacing` in favour of `list-style`, which also enforces line breaks inside lists (1,842 findings
    on the three packages against 1 for the two spacing rules) and prints a deprecation notice on every run for the
@@ -396,3 +404,12 @@ invocation). Against 120 s for the serial ESLint setup it replaces, and instant 
 13. Not supported by oxlint, documented in the README: inline rule configuration comments
     (`/* eslint no-console: [...] */`), and two rules reporting at another line than ESLint (`no-useless-catch`
     at the `catch` clause, `prefer-const` at the declaration), which moves `eslint-disable-next-line` targets.
+14. Type-aware mode on out of the box (review finding: with the root-only switch, a consumer that installs v4 and
+    changes nothing loses `no-for-in-array`, which v3 ran on every ts file). `oxlint-tsgolint` is a regular
+    dependency, the shared config returns `options: { typeAware: true }`, which reaches the root config through
+    `extends`, and `oxlint()` sets `OXLINT_TSGOLINT_PATH` to the package's own copy of the launcher unless the
+    variable is already set, so the binary is found even when not hoisted or when oxlint runs from a directory
+    without node_modules above it. Opt-out: `options: { typeAware: false }` in the root config. Cost on the
+    validation monorepo with corrected tsconfigs: 5.5 s for 5,976 files with only `no-for-in-array` enabled,
+    against 0.3 s without type-aware mode. Consumers whose tsconfigs still use `baseUrl` or `node10` get
+    `tsconfig-error` diagnostics until they fix them (ts5to6).

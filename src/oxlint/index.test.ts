@@ -17,7 +17,7 @@ const overrideFor = (config: ReturnType<typeof oxlint>, glob: string) =>
   overrides(config).find((o) => o.files.includes(glob));
 const pluginNames = (list: unknown) => (list as { name: string }[]).map((p) => p.name);
 
-test('defaults: native plugins, correctness as error, four js plugins, no typeAware option', () => {
+test('defaults: native plugins, correctness as error, four js plugins, type-aware on', () => {
   const config = oxlint();
   assert.deepEqual(config.plugins, ['eslint', 'typescript', 'unicorn', 'oxc', 'import']);
   assert.deepEqual(config.categories, { correctness: 'error' });
@@ -27,7 +27,9 @@ test('defaults: native plugins, correctness as error, four js plugins, no typeAw
     'eslint-js',
     'typescript-js',
   ]);
-  assert.equal(config.options, undefined, 'typeAware is root-config-only and must not be set here');
+  // inherited into the consumer's root config through extends, which is where oxlint reads it
+  assert.deepEqual(config.options, { typeAware: true });
+  assert.ok(process.env.OXLINT_TSGOLINT_PATH?.endsWith('/oxlint-tsgolint/bin/tsgolint.js'));
 });
 
 test('environment and globals live in overrides so extends keeps them', () => {

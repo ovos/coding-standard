@@ -14,8 +14,8 @@ yarn add --dev @ovos-media/coding-standard
 | Requirement | Value | Why |
 |---|---|---|
 | Node.js | `^20.19.0 \|\| >=22.18.0` | oxlint loads `oxlint.config.ts` through Node's type stripping |
-| `oxlint`, `oxfmt` | installed by this package | regular dependencies, one install gets the runners |
-| `oxlint-tsgolint` | optional peer, `>=7.0.2001` | only for type-aware rules, see below |
+| `oxlint`, `oxfmt`, `oxlint-tsgolint` | installed by this package | regular dependencies, one install gets the runners and the type-aware engine |
+| tsconfig files | valid under TypeScript 6/7 semantics | tsgolint refuses `baseUrl` and `moduleResolution: node10`, see below |
 
 ## `oxlint.config.ts`
 
@@ -71,20 +71,23 @@ Every rule is an error. Warnings are not used.
 
 ### Type-aware rules
 
-`typescript/no-for-in-array` is always configured, `typeChecked` adds 16 more. They run only when the **root**
-config of the project enables type-aware mode and `oxlint-tsgolint` is installed:
+Type-aware linting is on out of the box, as it was in v3: `typescript/no-for-in-array` runs on every ts file,
+`typeChecked` adds 16 more rules. The engine is [oxlint-tsgolint](https://github.com/oxc-project/tsgolint), a
+dependency of this package; the shared config carries `options: { typeAware: true }` into your root config
+through `extends`, which is the only place oxlint reads it, and points oxlint at the installed tsgolint binary
+(`OXLINT_TSGOLINT_PATH`, set only when you have not set it) so the copy is found wherever the package manager
+put it. Cost measured on 6,000 files: about 5 s per full run on top of the native rules.
+
+To turn it off, in the root config only:
 
 ```ts
-// root oxlint.config.ts only; oxlint ignores this option in nested configs
-export default defineConfig({
-  extends: [oxlint()],
-  options: { typeAware: true },
-});
+export default defineConfig({ extends: [oxlint()], options: { typeAware: false } });
 ```
 
 tsgolint implements TypeScript 7 semantics. Projects must not use `baseUrl` or `moduleResolution: node10`, and
-`rootDir` defaults to the tsconfig's directory. [ts5to6](https://github.com/andrewbranch/ts5to6) automates the
-tsconfig changes; TypeScript 5.9 accepts them.
+`rootDir` defaults to the tsconfig's directory; a tsconfig that violates this fails the run with
+`tsconfig-error` diagnostics. [ts5to6](https://github.com/andrewbranch/ts5to6) automates the changes; TypeScript
+5.9 accepts them. Files outside every tsconfig are skipped by the type-aware rules without error.
 
 ## `oxfmt.config.ts` and `prettier.config.js`
 
@@ -116,7 +119,8 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
   ([oxc #26017](https://github.com/oxc-project/oxc/issues/26017)); with one install there is one copy.
 - Each package keeps its own `oxlint.config.ts` extending the shared config with its own ignores, rules and
   overrides. One `oxlint` run from the root discovers every nested config.
-- `options: { typeAware: true }` goes into the root config only.
+- Type-aware mode comes from the root config's `extends`; nested configs inherit the option too and oxlint
+  ignores it there, so nothing extra is needed per package.
 - `ignorePatterns` belong to the config that governs a file: they are not inherited through `extends`, and the
   root config's patterns do not reach files under a package with its own config. v3's mocha block ignored
   `__snapshots__` directories; a package with snapshot files adds `ignorePatterns: ['**/__snapshots__']` itself.
@@ -150,6 +154,7 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 | `ignores: ['__snapshots__']` in the mocha block | `ignorePatterns: ['**/__snapshots__']` in the package config |
 | `cypress: true` | removed; `playwright: true` |
 | `disableTypeChecked` | removed; files outside every tsconfig are skipped by type-aware rules |
+| `projectService: true` (type information always on) | `oxlint-tsgolint` installed by this package, switched on through `extends`; `no-for-in-array` keeps running everywhere |
 | `indent` | still on `oxlint()`, also on `oxfmt()` |
 | `trailingComma: 'es5'` in the Prettier export | `'all'`; the `comma-dangle` lint rule accepts both styles |
 | `@stylistic/*` rules | same rules, `stylistic/*` under oxlint; `jsx-self-closing-comp` and `jsx-curly-brace-presence` became `react/*` |

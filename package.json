@@ -56,19 +56,12 @@
     "eslint-plugin-playwright": "^2.11.0",
     "oxfmt": "^0.66.0",
     "oxlint": "^1.81.0",
-    "oxlint-plugin-eslint": "^1.81.0"
+    "oxlint-plugin-eslint": "^1.81.0",
+    "oxlint-tsgolint": "^7.0.2001"
   },
   "devDependencies": {
     "@types/node": "24.0.14",
     "typescript": "5.9.3"
-  },
-  "peerDependencies": {
-    "oxlint-tsgolint": ">=7.0.2001"
-  },
-  "peerDependenciesMeta": {
-    "oxlint-tsgolint": {
-      "optional": true
-    }
   },
   "engines": {
     "node": "^20.19.0 || >=22.18.0"
