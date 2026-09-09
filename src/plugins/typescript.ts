@@ -1,5 +1,4 @@
 import { createRequire } from 'node:module';
-import path from 'node:path';
 
 /*
  * typescript-eslint's `naming-convention` rule, executed by oxlint through its JS-plugin bridge.
@@ -20,8 +19,10 @@ import path from 'node:path';
  *   - startup: about 0.5 s per CLI invocation. The rule module loads 580 modules including the 9 MB TypeScript
  *     compiler (via the plugin's own astUtils), @typescript-eslint/scope-manager, ESLint's modules, ajv and semver.
  *     Paid once per lint-staged commit, editor session (the language server keeps the plugin loaded) or CI run.
- *     Loading `dist/rules/naming-convention.js` directly instead of the `use-at-your-own-risk/rules` index saves
- *     about 0.2 s; the package's `exports` map blocks the bare specifier, an absolute filesystem path does not.
+ *     The rule is taken from the plugin's public entry point; loading `dist/rules/naming-convention.js` by file
+ *     path, a private location, measured the same (412 ms against 423 ms cold), so nothing depends on the
+ *     package's file layout. The entry point does not need `@typescript-eslint/parser`, a peer this package does
+ *     not install.
  *   - per file: about 1.8 ms, roughly 7 s per 4,000 ts files, because the rule resolves scope for every matched
  *     name to compute modifiers (`unused`, `global`) whether or not the configured selectors use them. Not tunable
  *     from here.
@@ -36,18 +37,15 @@ import path from 'node:path';
  *   - tsgolint's native rule once merged and registered in oxlint: delete this file, switch the config to
  *     `typescript/naming-convention`, rename disable directives back to `@typescript-eslint/naming-convention`.
  *
- * The module path below is private API. `typescript.test.ts` fails loudly when a typescript-eslint release moves it.
+ * `typescript.test.ts` pins the wrapper's behaviour to upstream on 16 fixtures.
  */
 
 type RuleContext = { sourceCode?: object };
 type RuleModule = { meta: unknown; create: (context: RuleContext) => Record<string, unknown> };
 
 const require = createRequire(import.meta.url);
-const pluginDir = path.dirname(require.resolve('@typescript-eslint/eslint-plugin/package.json'));
-const loaded = require(path.join(pluginDir, 'dist/rules/naming-convention.js')) as
-  | RuleModule
-  | { default: RuleModule };
-const upstream: RuleModule = 'default' in loaded ? loaded.default : loaded;
+const upstreamPlugin = require('@typescript-eslint/eslint-plugin') as { rules: Record<string, RuleModule> };
+const upstream: RuleModule = upstreamPlugin.rules['naming-convention'];
 
 const emptyParserServices = {
   esTreeNodeToTSNodeMap: new Map(),
