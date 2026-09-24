@@ -6,7 +6,8 @@ import { runOxlint } from './smoke-helpers.js';
 const list = (found: Set<string>) => [...found].sort().join('\n  ');
 const has = (found: Set<string>, entry: string) =>
   assert.ok(found.has(entry), `expected ${entry} in:\n  ${list(found)}`);
-const lacks = (found: Set<string>, entry: string) => assert.ok(!found.has(entry), `unexpected ${entry}`);
+const lacks = (found: Set<string>, entry: string) =>
+  assert.ok(!found.has(entry) && !found.has(`${entry} (warning)`), `unexpected ${entry}`);
 const cleanFile = (found: Set<string>, file: string) =>
   assert.ok(
     ![...found].some((e) => e.startsWith(`${file}:`)),
@@ -73,7 +74,7 @@ test('consumer additions through extends: env and globals, categories, overrides
   cleanFile(base, 'src/env.ts');
   cleanFile(base, 'spec/env.spec.ts');
   has(base, 'src/notTest.ts:no-undef');
-  // the correctness category is inherited
+  // the correctness category is inherited at error: oxlint's own default for it is warning
   has(base, 'src/compare.ts:oxc/const-comparisons');
   has(base, 'src/ignored/x.ts:stylistic/quotes');
 

@@ -51,8 +51,10 @@ under their current serial ESLint setup; the largest alone takes 36 s.
 
 ## 3. Verified facts the design depends on
 
-- oxlint's `extends` inherits `rules`, `plugins`, `jsPlugins`, `options` and `overrides`. Top-level `env`, `globals`,
-  `settings`, `ignorePatterns` and `categories` are dropped. `env` and `globals` placed inside an `overrides` entry
+- oxlint's `extends` inherits `rules`, `plugins`, `jsPlugins`, `categories`, `options` and `overrides`. Top-level
+  `env`, `globals`, `settings` and `ignorePatterns` are dropped. (Corrected in review: an earlier version of this
+  list had `categories` as dropped; a correctness rule reports as error through `extends` and as warning without
+  config, and the smoke tests now assert severity.) `env` and `globals` placed inside an `overrides` entry
   are inherited and effective. The shared config therefore expresses everything file-scoped as overrides.
 - `options.typeAware` is honoured only in the consumer's root config, and `extends` carries it there: a root
   config that extends a config object with `options: { typeAware: true }` runs type-aware, with or without the

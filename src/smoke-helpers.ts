@@ -14,7 +14,7 @@ const require = createRequire(import.meta.url);
 const oxlintRoot = path.dirname(require.resolve('oxlint/package.json'));
 const oxlintBin = path.join(oxlintRoot, 'bin', 'oxlint');
 
-type Diagnostic = { filename: string; code: string; message: string };
+type Diagnostic = { filename: string; code: string; message: string; severity: string };
 
 export type ConsumerConfig = Record<string, unknown>;
 
@@ -85,7 +85,8 @@ export function runOxlintCli(dir: string, args: string[]): { stdout: string; std
 }
 
 // runs oxlint over a materialised fixture with json output.
-// returns "relative/path.ts:<rule>" strings, e.g. "src/naming.ts:typescript-js/naming-convention"
+// returns "relative/path.ts:<rule>" strings for errors, e.g. "src/naming.ts:typescript-js/naming-convention",
+// and "relative/path.ts:<rule> (warning)" for anything reported at another severity
 export function runOxlint(fixture: string, run: Run = {}): Set<string> {
   const dir = materialize(fixture, run);
   try {
@@ -101,7 +102,9 @@ export function runOxlint(fixture: string, run: Run = {}): Set<string> {
       // code looks like "eslint(no-unused-vars)" or "typescript-js(naming-convention)"
       const match = d.code.match(/^([^(]+)\((.+)\)$/);
       const rule = match ? (match[1] === 'eslint' ? match[2] : `${match[1]}/${match[2]}`) : d.code;
-      found.add(`${d.filename.split(path.sep).join('/')}:${rule}`);
+      // this standard reports errors only, so anything else is marked and never matches a plain assertion
+      const severity = d.severity === 'error' ? '' : ` (${d.severity})`;
+      found.add(`${d.filename.split(path.sep).join('/')}:${rule}${severity}`);
     }
     return found;
   } finally {
