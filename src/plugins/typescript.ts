@@ -19,15 +19,15 @@ import { createRequire } from 'node:module';
  *   - startup: about 0.5 s per CLI invocation. The rule module loads 580 modules including the 9 MB TypeScript
  *     compiler (via the plugin's own astUtils), @typescript-eslint/scope-manager, ESLint's modules, ajv and semver.
  *     Paid once per lint-staged commit, editor session (the language server keeps the plugin loaded) or CI run.
- *     The rule is taken from the plugin's public entry point; loading `dist/rules/naming-convention.js` by file
- *     path, a private location, measured the same (412 ms against 423 ms cold), so nothing depends on the
- *     package's file layout. The entry point requires the plugin's peer `@typescript-eslint/parser`, which is
- *     why this package depends on it: Yarn 1 does not install peers (see package.test.ts).
+ *     The rule comes from the public `typescript-eslint` package, not from a file path inside the plugin, so
+ *     nothing depends on the plugin's file layout; a private path measured about the same. That package pins
+ *     the plugin and its parser to one exact release and depends on the parser directly. The plugin alone
+ *     declares the parser as a peer, which Yarn 1 does not install (see package.test.ts).
  *   - per file: about 1.8 ms, roughly 7 s per 4,000 ts files, because the rule resolves scope for every matched
  *     name to compute modifiers (`unused`, `global`) whether or not the configured selectors use them. Not tunable
  *     from here.
- *   - dependencies: @typescript-eslint/eslint-plugin (https://github.com/typescript-eslint/typescript-eslint) and
- *     its tree (parser, scope-manager, type-utils, utils, typescript-estree), plus eslint at runtime.
+ *   - dependencies: typescript-eslint (https://github.com/typescript-eslint/typescript-eslint), which brings the
+ *     plugin, parser, utils and typescript-estree at one release, plus eslint at runtime.
  *
  * Alternatives, and when to take them:
  *   - an in-house AST-only rule for the five selectors: about 100 to 150 lines, about 0.2 ms per file, no
@@ -44,8 +44,8 @@ type RuleContext = { sourceCode?: object };
 type RuleModule = { meta: unknown; create: (context: RuleContext) => Record<string, unknown> };
 
 const require = createRequire(import.meta.url);
-const upstreamPlugin = require('@typescript-eslint/eslint-plugin') as { rules: Record<string, RuleModule> };
-const upstream: RuleModule = upstreamPlugin.rules['naming-convention'];
+const typescriptEslint = require('typescript-eslint') as { plugin: { rules: Record<string, RuleModule> } };
+const upstream: RuleModule = typescriptEslint.plugin.rules['naming-convention'];
 
 const emptyParserServices = {
   esTreeNodeToTSNodeMap: new Map(),

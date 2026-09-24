@@ -193,7 +193,7 @@ JS-plugin bridge, and they are what keeps `eslint` and typescript-eslint in the 
 
 | Feature | Runs as | Keeps in the tree | Cost on 4,000 files |
 |---|---|---|---|
-| `@typescript-eslint/naming-convention` | this package's wrapper around the upstream rule, [src/plugins/typescript.ts](src/plugins/typescript.ts) | `@typescript-eslint/eslint-plugin`, `@typescript-eslint/parser` and their tree, `eslint` | about 7 s, 0.5 s per start |
+| `@typescript-eslint/naming-convention` | this package's wrapper around the upstream rule, [src/plugins/typescript.ts](src/plugins/typescript.ts) | `typescript-eslint` (plugin, parser, utils at one release), `eslint` | about 7 s, 0.5 s per start |
 | `perfectionist/sort-named-imports`, `sort-named-exports` | [eslint-plugin-perfectionist](https://github.com/azat-io/eslint-plugin-perfectionist), see [src/oxlint/plugins.ts](src/oxlint/plugins.ts) | `@typescript-eslint/utils`, `eslint` | about 1.2 s, 0.3 s per start |
 | mocha rules | [eslint-plugin-mocha](https://github.com/lo1tuma/eslint-plugin-mocha) | `eslint` | negligible |
 

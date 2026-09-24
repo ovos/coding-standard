@@ -37,7 +37,10 @@ test('every required peer of a runtime dependency is a runtime dependency too', 
   assert.deepEqual(missing, []);
 });
 
-// @typescript-eslint/eslint-plugin requires the parser of the same release as a peer (8.70.1: `^8.70.1`)
-test('typescript-eslint plugin and parser ranges move together', () => {
-  assert.equal(dependencies['@typescript-eslint/parser'], dependencies['@typescript-eslint/eslint-plugin']);
+// the typescript-eslint package pins plugin, parser and utils to one exact release. separate @typescript-eslint/*
+// ranges could resolve to different releases, e.g. in a lockfile that already holds one of them
+test('typescript-eslint comes in through its single package only', () => {
+  const direct = Object.keys(dependencies).filter((name) => name.startsWith('@typescript-eslint/'));
+  assert.deepEqual(direct, []);
+  assert.ok(dependencies['typescript-eslint']);
 });
