@@ -21,13 +21,13 @@ import { createRequire } from 'node:module';
  *     Paid once per lint-staged commit, editor session (the language server keeps the plugin loaded) or CI run.
  *     The rule is taken from the plugin's public entry point; loading `dist/rules/naming-convention.js` by file
  *     path, a private location, measured the same (412 ms against 423 ms cold), so nothing depends on the
- *     package's file layout. The entry point does not need `@typescript-eslint/parser`, a peer this package does
- *     not install.
+ *     package's file layout. The entry point requires the plugin's peer `@typescript-eslint/parser`, which is
+ *     why this package depends on it: Yarn 1 does not install peers (see package.test.ts).
  *   - per file: about 1.8 ms, roughly 7 s per 4,000 ts files, because the rule resolves scope for every matched
  *     name to compute modifiers (`unused`, `global`) whether or not the configured selectors use them. Not tunable
  *     from here.
  *   - dependencies: @typescript-eslint/eslint-plugin (https://github.com/typescript-eslint/typescript-eslint) and
- *     its tree (scope-manager, type-utils, utils, typescript-estree), plus eslint at runtime.
+ *     its tree (parser, scope-manager, type-utils, utils, typescript-estree), plus eslint at runtime.
  *
  * Alternatives, and when to take them:
  *   - an in-house AST-only rule for the five selectors: about 100 to 150 lines, about 0.2 ms per file, no

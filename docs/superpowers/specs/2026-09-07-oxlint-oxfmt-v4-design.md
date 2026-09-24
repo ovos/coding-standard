@@ -107,7 +107,8 @@ under their current serial ESLint setup; the largest alone takes 36 s.
 Regular dependencies, all at today's latest: `oxlint` ^1.81.0, `oxfmt` ^0.66.0, `oxlint-plugin-eslint` ^1.81.0,
 `@stylistic/eslint-plugin` ^5.10.0 (see 11.2), `eslint-plugin-perfectionist` ^5.11.0,
 `eslint-plugin-mocha` ^12.0.2, `eslint-plugin-playwright` ^2.11.0, `eslint-plugin-check-file` ^3.3.2 (component
-file naming, see 11.9), `@typescript-eslint/eslint-plugin` ^8.69.0 (for the naming wrapper), `eslint` ^10.9.1
+file naming, see 11.9), `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` ^8.69.0 (for the naming wrapper; the parser is
+the plugin's peer, required by its entry point, and Yarn 1 does not install peers), `eslint` ^10.9.1
 (runtime requirement of eslint-plugin-mocha and typescript-eslint).
 
 `oxlint` and `oxfmt` ranges are bumped deliberately in this package: under `correctness: 'error'` a new default-on
