@@ -1,0 +1,11 @@
+{
+  "_comment": "v3 rules v4 intentionally does not enforce, with the reason. src/parity.test.ts fails when a rule v3 enforced is neither enforced by v4 nor listed here.",
+  "radix": "ESLint 10 and oxlint 1.49+ always require a radix, the opposite of v3's as-needed; not configured (src/oxlint/rules/core.ts)",
+  "react/jsx-no-bind": "dropped by design decision 5: not in any recommended set, every hit was suppressed inline",
+  "react/prop-types": "not implemented by oxlint; unreliable with TypeScript",
+  "react/no-deprecated": "not implemented by oxlint",
+  "react/jsx-uses-react": "only existed to keep no-unused-vars quiet about jsx; oxlint handles jsx usage natively",
+  "react/jsx-uses-vars": "only existed to keep no-unused-vars quiet about jsx; oxlint handles jsx usage natively",
+  "import/order": "import declaration order is oxfmt's sortImports, on demand (spec 11.5)",
+  "@stylistic/jsx-props-no-multi-spaces": "crashes under oxlint's plugin bridge on some jsx files; removed in stylistic v6"
+}
