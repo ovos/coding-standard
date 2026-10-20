@@ -50,7 +50,9 @@ function restoreConfigNames(dir: string): void {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const entryPath = path.join(dir, entry.name);
     if (entry.isDirectory()) restoreConfigNames(entryPath);
-    else if (entry.name === 'oxlint.config.fixture.ts') fs.renameSync(entryPath, path.join(dir, 'oxlint.config.ts'));
+    else if (entry.name === 'oxlint.config.fixture.ts') {
+      fs.renameSync(entryPath, path.join(dir, 'oxlint.config.ts'));
+    }
   }
 }
 
@@ -67,9 +69,16 @@ export function materialize(fixture: string, run: Run = {}): string {
   }
   fs.mkdirSync(path.join(dir, 'node_modules', '@ovos-media'), { recursive: true });
   fs.symlinkSync(oxlintRoot, path.join(dir, 'node_modules', 'oxlint'), 'dir');
-  fs.symlinkSync(packageRoot, path.join(dir, 'node_modules', '@ovos-media', 'coding-standard'), 'dir');
+  fs.symlinkSync(
+    packageRoot,
+    path.join(dir, 'node_modules', '@ovos-media', 'coding-standard'),
+    'dir',
+  );
   if (!fs.existsSync(path.join(dir, 'oxlint.config.ts'))) {
-    fs.writeFileSync(path.join(dir, 'oxlint.config.ts'), consumerConfig(run.options ?? {}, run.consumer ?? {}));
+    fs.writeFileSync(
+      path.join(dir, 'oxlint.config.ts'),
+      consumerConfig(run.options ?? {}, run.consumer ?? {}),
+    );
   }
   return dir;
 }
@@ -80,7 +89,11 @@ export function runOxlintCli(dir: string, args: string[]): { stdout: string; std
   // oxlint() directly, so it is dropped here
   const env = { ...process.env };
   delete env.OXLINT_TSGOLINT_PATH;
-  const result = spawnSync(process.execPath, [oxlintBin, ...args], { cwd: dir, encoding: 'utf8', env });
+  const result = spawnSync(process.execPath, [oxlintBin, ...args], {
+    cwd: dir,
+    encoding: 'utf8',
+    env,
+  });
   return { stdout: result.stdout, stderr: result.stderr };
 }
 

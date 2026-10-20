@@ -44,7 +44,9 @@ type RuleContext = { sourceCode?: object };
 type RuleModule = { meta: unknown; create: (context: RuleContext) => Record<string, unknown> };
 
 const require = createRequire(import.meta.url);
-const typescriptEslint = require('typescript-eslint') as { plugin: { rules: Record<string, RuleModule> } };
+const typescriptEslint = require('typescript-eslint') as {
+  plugin: { rules: Record<string, RuleModule> };
+};
 const upstream: RuleModule = typescriptEslint.plugin.rules['naming-convention'];
 
 const emptyParserServices = {

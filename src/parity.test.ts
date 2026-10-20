@@ -25,10 +25,15 @@ import { materialize, packageRoot, runOxlintCli } from './smoke-helpers.js';
 type Severity = 'error' | 'warn' | 'off';
 type RuleEntry = { severity: Severity; options?: unknown[] };
 type RuleSet = Record<string, RuleEntry>;
-type Baseline = { meta: { scenarios: Record<string, OxlintOptions> }; configs: Record<string, RuleSet> };
+type Baseline = {
+  meta: { scenarios: Record<string, OxlintOptions> };
+  configs: Record<string, RuleSet>;
+};
 
 const parityDir = path.join(packageRoot, 'test', 'parity');
-const baseline = JSON.parse(fs.readFileSync(path.join(parityDir, 'v3-rules.json'), 'utf8')) as Baseline;
+const baseline = JSON.parse(
+  fs.readFileSync(path.join(parityDir, 'v3-rules.json'), 'utf8'),
+) as Baseline;
 const dropped = JSON.parse(fs.readFileSync(path.join(parityDir, 'dropped.json'), 'utf8')) as Record<
   string,
   string
@@ -75,7 +80,9 @@ const severityOf = (value: unknown): Severity => {
 };
 const entryOf = (value: unknown): RuleEntry => {
   const options = Array.isArray(value) ? value.slice(1) : [];
-  return options.length ? { severity: severityOf(value), options } : { severity: severityOf(value) };
+  return options.length
+    ? { severity: severityOf(value), options }
+    : { severity: severityOf(value) };
 };
 
 // the rules oxlint resolves at the top level for the shared config: explicit ones plus the correctness category
@@ -86,7 +93,9 @@ function printConfig(scenario: string, options: OxlintOptions): Record<string, u
   const dir = materialize('base', { options });
   try {
     const { stdout, stderr } = runOxlintCli(dir, ['--print-config']);
-    if (!stdout.trim().startsWith('{')) throw new Error(`oxlint --print-config failed:\n${stdout}\n${stderr}`);
+    if (!stdout.trim().startsWith('{')) {
+      throw new Error(`oxlint --print-config failed:\n${stdout}\n${stderr}`);
+    }
     const rules = (JSON.parse(stdout) as { rules: Record<string, unknown> }).rules;
     printedTopLevel.set(scenario, rules);
     return rules;
@@ -100,12 +109,16 @@ function printConfig(scenario: string, options: OxlintOptions): Record<string, u
 function v4RulesFor(scenario: string, options: OxlintOptions, file: string): RuleSet {
   const config = oxlint(options);
   const effective: RuleSet = {};
-  for (const [rule, value] of Object.entries(printConfig(scenario, options))) effective[rule] = entryOf(value);
+  for (const [rule, value] of Object.entries(printConfig(scenario, options))) {
+    effective[rule] = entryOf(value);
+  }
   for (const [rule, value] of Object.entries(config.rules ?? {})) effective[rule] = entryOf(value);
   for (const override of config.overrides ?? []) {
     const files = override.files as string[];
     if (!files.some((glob) => picomatch.isMatch(file, glob))) continue;
-    for (const [rule, value] of Object.entries(override.rules ?? {})) effective[rule] = entryOf(value);
+    for (const [rule, value] of Object.entries(override.rules ?? {})) {
+      effective[rule] = entryOf(value);
+    }
   }
   return Object.fromEntries(Object.entries(effective).sort(([a], [b]) => a.localeCompare(b)));
 }
@@ -137,10 +150,16 @@ test('every rule v3 enforced is enforced by v4 or listed in dropped.json', () =>
 test('dropped.json lists only rules v3 actually enforced', () => {
   const enforced = new Set<string>();
   for (const rules of Object.values(baseline.configs)) {
-    for (const [rule, entry] of Object.entries(rules)) if (entry.severity === 'error') enforced.add(rule);
+    for (const [rule, entry] of Object.entries(rules)) {
+      if (entry.severity === 'error') enforced.add(rule);
+    }
   }
   const stale = Object.keys(dropped).filter((rule) => rule !== '_comment' && !enforced.has(rule));
-  assert.deepEqual(stale, [], `entries in dropped.json that v3 did not enforce: ${stale.join(', ')}`);
+  assert.deepEqual(
+    stale,
+    [],
+    `entries in dropped.json that v3 did not enforce: ${stale.join(', ')}`,
+  );
 });
 
 test('v4 resolved rule sets match the committed snapshots', () => {
@@ -149,7 +168,9 @@ test('v4 resolved rule sets match the committed snapshots', () => {
   const differences: string[] = [];
   for (const [scenario, files] of scenarioFiles) {
     const options = baseline.meta.scenarios[scenario];
-    const resolved = Object.fromEntries(files.map((file) => [file, v4RulesFor(scenario, options, file)]));
+    const resolved = Object.fromEntries(
+      files.map((file) => [file, v4RulesFor(scenario, options, file)]),
+    );
     const snapshotPath = path.join(snapshotDir, `${scenario}.json`);
     const serialized = `${JSON.stringify({ options, files: resolved }, null, 2)}\n`;
     if (process.env.UPDATE_SNAPSHOTS) {

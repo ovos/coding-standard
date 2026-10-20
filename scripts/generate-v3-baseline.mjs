@@ -26,14 +26,27 @@ const scenarios = {
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'coding-standard-v3-'));
 const run = (cmd, args) => {
   const result = spawnSync(cmd, args, { cwd: dir, encoding: 'utf8' });
-  if (result.status !== 0) throw new Error(`${cmd} ${args.join(' ')} failed:\n${result.stdout}\n${result.stderr}`);
+  if (result.status !== 0) {
+    throw new Error(`${cmd} ${args.join(' ')} failed:\n${result.stdout}\n${result.stderr}`);
+  }
   return result.stdout;
 };
 
-fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'v3-baseline', private: true }));
-run('npm', ['i', '--no-audit', '--no-fund', '@ovos-media/coding-standard@3.0.1', 'eslint@9', 'typescript@5.9.3']);
+fs.writeFileSync(
+  path.join(dir, 'package.json'),
+  JSON.stringify({ name: 'v3-baseline', private: true }),
+);
+run('npm', [
+  'i',
+  '--no-audit',
+  '--no-fund',
+  '@ovos-media/coding-standard@3.0.1',
+  'eslint@9',
+  'typescript@5.9.3',
+]);
 
-const version = (name) => JSON.parse(fs.readFileSync(path.join(dir, 'node_modules', name, 'package.json'), 'utf8')).version;
+const version = (name) =>
+  JSON.parse(fs.readFileSync(path.join(dir, 'node_modules', name, 'package.json'), 'utf8')).version;
 const severity = (value) => {
   const raw = Array.isArray(value) ? value[0] : value;
   return { 0: 'off', 1: 'warn', 2: 'error' }[raw] ?? raw;
@@ -48,9 +61,14 @@ for (const [name, { options, paths }] of Object.entries(scenarios)) {
   for (const file of paths) {
     const config = JSON.parse(run('npx', ['eslint', '--print-config', file]));
     const rules = {};
-    for (const [rule, value] of Object.entries(config.rules).sort(([a], [b]) => a.localeCompare(b))) {
+    for (const [rule, value] of Object.entries(config.rules).sort(([a], [b]) =>
+      a.localeCompare(b),
+    )) {
       const ruleOptions = Array.isArray(value) ? value.slice(1) : [];
-      rules[rule] = { severity: severity(value), ...(ruleOptions.length && { options: ruleOptions }) };
+      rules[rule] = {
+        severity: severity(value),
+        ...(ruleOptions.length && { options: ruleOptions }),
+      };
     }
     configs[`${name}:${file}`] = rules;
   }
@@ -72,7 +90,9 @@ const meta = {
       'eslint-plugin-check-file',
     ].map((name) => [name, version(name)]),
   ),
-  scenarios: Object.fromEntries(Object.entries(scenarios).map(([name, { options }]) => [name, options])),
+  scenarios: Object.fromEntries(
+    Object.entries(scenarios).map(([name, { options }]) => [name, options]),
+  ),
 };
 fs.writeFileSync(target, `${JSON.stringify({ meta, configs }, null, 2)}\n`);
 fs.rmSync(dir, { recursive: true, force: true });
