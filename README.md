@@ -107,7 +107,8 @@ export default prettier;
 ```
 
 Both exports share one base: `printWidth: 100`, `singleQuote`, `trailingComma: 'all'`, indent from the option.
-The oxfmt export also sorts import declarations (builtin, external, `~` aliases, parent, sibling and index).
+The oxfmt export also sorts import declarations like v3's `import/order`: builtin, external, `~` aliases as a
+group of their own, other internal imports, parent, then sibling and index, with a blank line between groups.
 Formatting is enforced by the `stylistic/*` lint rules; oxfmt and Prettier are on-demand tools whose output
 passes those rules. Per-directory formatting differences go through oxfmt `overrides` or a nested
 `oxfmt.config.ts`.
