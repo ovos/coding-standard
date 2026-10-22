@@ -26,8 +26,6 @@ export const correctnessExtras = {
     // reports a missing default export for bundler imports like `./worker.mjs?url`, whose default the bundler
     // provides
     'import/default',
-    // reports every computed access like `ns[key]` on `import * as ns`, unless `allowComputed` is set
-    'import/namespace',
     // `then` is also the JSON Schema keyword (if/then/else) used in model schemas. the rule cannot tell the two apart
     'unicorn/no-thenable',
   ],
@@ -61,6 +59,9 @@ export function coreRules(consoleUsage: ConsoleUsage): Rules {
     curly: ['error', 'multi-line'],
     eqeqeq: 'error',
     'import/no-duplicates': ['error', { preferInline: true }],
+    // names used on `import * as ns` must exist in the module. computed access like `ns[key]` cannot be checked
+    // statically and stays allowed
+    'import/namespace': ['error', { allowComputed: true }],
     ...off(correctnessExtras.all),
     'no-array-constructor': 'error',
     'no-else-return': 'error',

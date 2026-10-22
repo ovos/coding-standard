@@ -65,7 +65,7 @@ Two oxlint rules of thumb for your own additions:
 | `react` | `boolean` | `false` | react and react-hooks rules, jsx layout rules, PascalCase component files (`use*` / `with*` camelCase) |
 | `reactCompiler` | `boolean` | `false` | the 12 React Compiler rules (`react/immutability`, `react/purity`, `react/refs`, ...) as errors |
 | `typeChecked` | `boolean` | `false` | type-aware runtime-bug catchers (`no-floating-promises`, `no-misused-promises`, ...) |
-| `fullCorrectness` | `boolean` | `false` | every rule of oxlint's `correctness` category: its 15 type-aware rules and the five this standard leaves out (`import/default`, `import/namespace`, `unicorn/no-thenable`, two typescript rules). Covers the plugins enabled at the top level |
+| `fullCorrectness` | `boolean` | `false` | every rule of oxlint's `correctness` category: its 15 type-aware rules and the four this standard leaves out (`import/default`, `unicorn/no-thenable`, two typescript rules). Covers the plugins enabled at the top level |
 | `typeAwareJs` | `boolean \| string[]` | `false` | type-aware rules for js files too: `true` for every js file, or a list of globs |
 | `a11y` | `boolean` | `false` | oxlint's built-in `jsx-a11y` rules |
 

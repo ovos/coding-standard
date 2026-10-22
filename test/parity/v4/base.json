@@ -39,7 +39,12 @@
         "severity": "off"
       },
       "import/namespace": {
-        "severity": "off"
+        "severity": "error",
+        "options": [
+          {
+            "allowComputed": true
+          }
+        ]
       },
       "import/no-duplicates": {
         "severity": "error",
@@ -811,7 +816,12 @@
         "severity": "off"
       },
       "import/namespace": {
-        "severity": "off"
+        "severity": "error",
+        "options": [
+          {
+            "allowComputed": true
+          }
+        ]
       },
       "import/no-duplicates": {
         "severity": "error",

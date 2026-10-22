@@ -89,6 +89,10 @@ test('typeAwareRules only adds: no-for-in-array, the catchers with typeChecked, 
   assert.equal(full['typescript/no-misused-promises'], undefined);
 });
 
+test('import/namespace checks named access and allows computed access', () => {
+  assert.deepEqual(coreRules('allow')['import/namespace'], ['error', { allowComputed: true }]);
+});
+
 test('the correctness rules this standard leaves out are off by default', () => {
   for (const rule of correctnessExtras.all) assert.equal(coreRules('allow')[rule], 'off', rule);
   for (const rule of correctnessExtras.ts) assert.equal(tsRules()[rule], 'off', rule);
