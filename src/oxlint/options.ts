@@ -23,6 +23,13 @@ export type OxlintOptions = {
   // type-aware runtime-bug catchers (no-floating-promises, no-misused-promises, ...). needs the root config's
   // `options: { typeAware: true }` and oxlint-tsgolint to have any effect
   typeChecked?: boolean;
+  // every rule of oxlint's correctness category, including its type-aware rules and the few this standard leaves
+  // out. covers the plugins enabled at the top level. the category does not reach the react, jest and vitest
+  // rules listed in overrides
+  fullCorrectness?: boolean;
+  // type-aware rules for js files too: `true` for every js file, or a list of globs. off by default, as in v3,
+  // because plain js has inferred types only. the files should be in a tsconfig with `allowJs`, ideally `checkJs`
+  typeAwareJs?: boolean | string[];
   // oxlint's built-in jsx-a11y rules
   a11y?: boolean;
 };
@@ -42,6 +49,8 @@ export function resolveOptions(options: OxlintOptions): ResolvedOptions {
     vitest: options.vitest ?? false,
     reactCompiler: options.reactCompiler ?? false,
     typeChecked: options.typeChecked ?? false,
+    fullCorrectness: options.fullCorrectness ?? false,
+    typeAwareJs: options.typeAwareJs ?? false,
     a11y: options.a11y ?? false,
   };
 }

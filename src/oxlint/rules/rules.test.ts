@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { coreRules, jsRules, tsRules } from './core.js';
+import { coreRules, correctnessExtras, jsRules, tsRules } from './core.js';
 import { fileNamingRules, reactCompilerRules, reactRules } from './react.js';
 import { stylisticJsxRules, stylisticRules } from './stylistic.js';
 import { jestRules, mochaRules, playwrightRules, vitestRules } from './tests.js';
-import { typeAwareRules } from './type-aware.js';
+import { typeAwareCorrectness, typeAwareOff, typeAwareRules } from './type-aware.js';
 
 const severities = (rules: Record<string, unknown>) =>
   Object.values(rules).map((value) => (Array.isArray(value) ? value[0] : value));
@@ -19,7 +19,8 @@ test('no rule is configured at warn', () => {
     stylisticJsxRules(2),
     reactRules(),
     reactCompilerRules(true),
-    typeAwareRules(true),
+    typeAwareOff,
+    typeAwareRules(true, true),
     jestRules(),
     vitestRules(),
     mochaRules(),
@@ -60,13 +61,35 @@ test('component file naming uses check-file, which accepts acronyms', () => {
   assert.deepEqual(Object.values(rule[1] as Record<string, string>), ['PASCAL_CASE', 'CAMEL_CASE']);
 });
 
-test('type-aware tier keeps no-for-in-array on and everything else explicit', () => {
-  const off = typeAwareRules(false);
-  assert.equal(off['typescript/no-for-in-array'], 'error');
-  assert.equal(off['typescript/no-floating-promises'], 'off');
-  assert.equal(off['typescript/unbound-method'], 'off');
-  const on = typeAwareRules(true);
-  assert.equal(on['typescript/no-floating-promises'], 'error');
-  assert.equal(on['typescript/no-misused-promises'], 'error');
-  assert.equal(on['typescript/unbound-method'], 'off');
+test('typeAwareOff switches off exactly the type-aware rules of the correctness category', () => {
+  assert.deepEqual(Object.keys(typeAwareOff).sort(), [...typeAwareCorrectness].sort());
+  assert.ok(severities(typeAwareOff).every((severity) => severity === 'off'));
+});
+
+test('typeAwareRules only adds: no-for-in-array, the catchers with typeChecked, everything with fullCorrectness', () => {
+  for (const [typeChecked, full] of [
+    [false, false],
+    [true, false],
+    [false, true],
+    [true, true],
+  ] as const) {
+    assert.ok(
+      severities(typeAwareRules(typeChecked, full)).every((severity) => severity === 'error'),
+    );
+  }
+  assert.deepEqual(Object.keys(typeAwareRules(false, false)), ['typescript/no-for-in-array']);
+  const checked = typeAwareRules(true, false);
+  assert.equal(checked['typescript/no-floating-promises'], 'error');
+  assert.equal(checked['typescript/no-misused-promises'], 'error');
+  // a judgement call, only in the full set
+  assert.equal(checked['typescript/unbound-method'], undefined);
+  const full = typeAwareRules(false, true);
+  for (const rule of typeAwareCorrectness) assert.equal(full[rule], 'error', rule);
+  // not in the correctness category, so not part of fullCorrectness
+  assert.equal(full['typescript/no-misused-promises'], undefined);
+});
+
+test('the correctness rules this standard leaves out are off by default', () => {
+  for (const rule of correctnessExtras.all) assert.equal(coreRules('allow')[rule], 'off', rule);
+  for (const rule of correctnessExtras.ts) assert.equal(tsRules()[rule], 'off', rule);
 });

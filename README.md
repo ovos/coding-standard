@@ -65,6 +65,8 @@ Two oxlint rules of thumb for your own additions:
 | `react` | `boolean` | `false` | react and react-hooks rules, jsx layout rules, PascalCase component files (`use*` / `with*` camelCase) |
 | `reactCompiler` | `boolean` | `false` | the 12 React Compiler rules (`react/immutability`, `react/purity`, `react/refs`, ...) as errors |
 | `typeChecked` | `boolean` | `false` | type-aware runtime-bug catchers (`no-floating-promises`, `no-misused-promises`, ...) |
+| `fullCorrectness` | `boolean` | `false` | every rule of oxlint's `correctness` category: its 15 type-aware rules and the five this standard leaves out (`import/default`, `import/namespace`, `unicorn/no-thenable`, two typescript rules). Covers the plugins enabled at the top level |
+| `typeAwareJs` | `boolean \| string[]` | `false` | type-aware rules for js files too: `true` for every js file, or a list of globs |
 | `a11y` | `boolean` | `false` | oxlint's built-in `jsx-a11y` rules |
 
 Every rule is an error. Warnings are not used.
@@ -72,7 +74,9 @@ Every rule is an error. Warnings are not used.
 ### Type-aware rules
 
 Type-aware linting is on out of the box, as it was in v3: `typescript/no-for-in-array` runs on every ts file,
-`typeChecked` adds 16 more rules. The engine is [oxlint-tsgolint](https://github.com/oxc-project/tsgolint), a
+`typeChecked` adds 16 more rules, `fullCorrectness` the whole `correctness` category. Type-aware rules apply to
+ts files only, as in v3. `typeAwareJs` extends them to js files, which should then be in a tsconfig with
+`allowJs`, ideally with `checkJs` or `// @ts-check`, since plain js has inferred types only. The engine is [oxlint-tsgolint](https://github.com/oxc-project/tsgolint), a
 dependency of this package; the shared config carries `options: { typeAware: true }` into your root config
 through `extends`, which is the only place oxlint reads it, and points oxlint at the installed tsgolint binary
 (`OXLINT_TSGOLINT_PATH`, set only when you have not set it) so the copy is found wherever the package manager
@@ -87,7 +91,8 @@ export default defineConfig({ extends: [oxlint()], options: { typeAware: false }
 tsgolint implements TypeScript 7 semantics. Projects must not use `baseUrl` or `moduleResolution: node10`, and
 `rootDir` defaults to the tsconfig's directory; a tsconfig that violates this fails the run with
 `tsconfig-error` diagnostics. [ts5to6](https://github.com/andrewbranch/ts5to6) automates the changes; TypeScript
-5.9 accepts them. Files outside every tsconfig are skipped by the type-aware rules without error.
+5.9 accepts them. Files outside every tsconfig are still checked, with TypeScript's default compiler options
+(tsgolint's debug log lists them as `Unmatched file`).
 
 ## `oxfmt.config.ts` and `prettier.config.js`
 
@@ -154,8 +159,8 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 | `{ rules: { 'react-hooks/exhaustive-deps': 'off' } }` as a config block | `overrides: [{ files: ['**/*.{jsx,tsx}'], plugins: ['react'], rules: { ... } }]`, see above |
 | `ignores: ['__snapshots__']` in the mocha block | `ignorePatterns: ['**/__snapshots__']` in the package config |
 | `cypress: true` | removed; `playwright: true` |
-| `disableTypeChecked` | removed; files outside every tsconfig are skipped by type-aware rules |
-| `projectService: true` (type information always on) | `oxlint-tsgolint` installed by this package, switched on through `extends`; `no-for-in-array` keeps running everywhere |
+| `disableTypeChecked` | removed. There is no parsing error to avoid any more: tsgolint checks ts files outside every tsconfig with default compiler options |
+| `projectService: true` (type information always on) | `oxlint-tsgolint` installed by this package, switched on through `extends`. `no-for-in-array` keeps running on every ts file, js files only with `typeAwareJs` |
 | `indent` | still on `oxlint()`, also on `oxfmt()` |
 | `trailingComma: 'es5'` in the Prettier export | `'all'`; the `comma-dangle` lint rule accepts both styles |
 | `@stylistic/*` rules | same rules, `stylistic/*` under oxlint; `jsx-self-closing-comp` and `jsx-curly-brace-presence` became `react/*` |

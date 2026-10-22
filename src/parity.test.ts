@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
 import picomatch from 'picomatch';
 
 import { type OxlintOptions, oxlint } from './oxlint/index.js';
+import { typeAwareCorrectness } from './oxlint/rules/type-aware.js';
 import { materialize, packageRoot, runOxlintCli } from './smoke-helpers.js';
 
 /*
@@ -184,5 +186,64 @@ test('v4 resolved rule sets match the committed snapshots', () => {
     differences,
     [],
     `resolved rules changed for ${differences.join(', ')}; run \`npm run parity:update\` and review the diff`,
+  );
+});
+
+// the rules of oxlint's correctness category for the given plugins, from `--print-config` of a bare config, so a
+// rule oxlint adds to the category shows up here as well
+function correctnessCategory(plugins: string[]): string[] {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'correctness-'));
+  try {
+    fs.writeFileSync(
+      path.join(dir, '.oxlintrc.json'),
+      JSON.stringify({ plugins, categories: { correctness: 'error' } }),
+    );
+    const { stdout, stderr } = runOxlintCli(dir, ['--print-config']);
+    if (!stdout.trim().startsWith('{')) {
+      throw new Error(`oxlint --print-config failed:\n${stdout}\n${stderr}`);
+    }
+    return Object.keys((JSON.parse(stdout) as { rules: Record<string, unknown> }).rules);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+const typeAware = new Set(typeAwareCorrectness);
+const severityIn = (rules: RuleSet, list: string[]) =>
+  Object.fromEntries(list.map((rule) => [rule, rules[rule]?.severity]));
+
+test('type-aware rules stay off for js files by default', () => {
+  const js = v4RulesFor('base', {}, 'src/a.js');
+  assert.deepEqual(
+    typeAwareCorrectness.filter((rule) => js[rule]?.severity === 'error'),
+    [],
+  );
+});
+
+test('fullCorrectness: every correctness rule is an error, the type-aware ones on ts files only', () => {
+  const options: OxlintOptions = { fullCorrectness: true };
+  const correctness = correctnessCategory(oxlint(options).plugins as string[]);
+  const ts = v4RulesFor('full-correctness', options, 'src/a.ts');
+  const js = v4RulesFor('full-correctness', options, 'src/a.js');
+  assert.deepEqual(
+    correctness.filter((rule) => ts[rule]?.severity !== 'error'),
+    [],
+  );
+  assert.deepEqual(
+    correctness.filter((rule) => !typeAware.has(rule) && js[rule]?.severity !== 'error'),
+    [],
+  );
+  assert.deepEqual(
+    correctness.filter((rule) => typeAware.has(rule) && js[rule]?.severity !== 'off'),
+    [],
+  );
+});
+
+test('typeAwareJs: js files resolve the same type-aware rules as ts files', () => {
+  const options: OxlintOptions = { typeAwareJs: true, typeChecked: true };
+  const list = [...typeAwareCorrectness, 'typescript/no-misused-promises'];
+  assert.deepEqual(
+    severityIn(v4RulesFor('type-aware-js', options, 'src/a.js'), list),
+    severityIn(v4RulesFor('type-aware-js', options, 'src/a.ts'), list),
   );
 });

@@ -661,9 +661,6 @@
       "typescript/no-misused-new": {
         "severity": "error"
       },
-      "typescript/no-misused-promises": {
-        "severity": "off"
-      },
       "typescript/no-misused-spread": {
         "severity": "off"
       },
@@ -685,17 +682,11 @@
       "typescript/no-unnecessary-parameter-property-assignment": {
         "severity": "off"
       },
-      "typescript/no-unnecessary-type-assertion": {
-        "severity": "off"
-      },
       "typescript/no-unnecessary-type-constraint": {
         "severity": "error"
       },
       "typescript/no-unsafe-declaration-merging": {
         "severity": "error"
-      },
-      "typescript/no-unsafe-enum-comparison": {
-        "severity": "off"
       },
       "typescript/no-unsafe-function-type": {
         "severity": "error"
@@ -712,37 +703,22 @@
       "typescript/no-wrapper-object-types": {
         "severity": "error"
       },
-      "typescript/only-throw-error": {
-        "severity": "off"
-      },
       "typescript/prefer-as-const": {
         "severity": "error"
       },
       "typescript/prefer-namespace-keyword": {
         "severity": "error"
       },
-      "typescript/prefer-promise-reject-errors": {
-        "severity": "off"
-      },
       "typescript/require-array-sort-compare": {
         "severity": "off"
       },
-      "typescript/restrict-plus-operands": {
-        "severity": "off"
-      },
       "typescript/restrict-template-expressions": {
-        "severity": "off"
-      },
-      "typescript/switch-exhaustiveness-check": {
         "severity": "off"
       },
       "typescript/triple-slash-reference": {
         "severity": "error"
       },
       "typescript/unbound-method": {
-        "severity": "off"
-      },
-      "typescript/use-unknown-in-catch-callback-variable": {
         "severity": "off"
       },
       "unicorn/no-await-in-promise-methods": {
@@ -1374,46 +1350,46 @@
         ]
       },
       "typescript/await-thenable": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-array-delete": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-base-to-string": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-duplicate-enum-values": {
         "severity": "error"
       },
       "typescript/no-duplicate-type-constituents": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-extra-non-null-assertion": {
         "severity": "error"
       },
       "typescript/no-floating-promises": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-for-in-array": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-implied-eval": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-meaningless-void-operator": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-misused-new": {
         "severity": "error"
       },
       "typescript/no-misused-spread": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-non-null-asserted-optional-chain": {
         "severity": "error"
       },
       "typescript/no-redundant-type-constituents": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-this-alias": {
         "severity": "error"
@@ -1425,10 +1401,10 @@
         "severity": "error"
       },
       "typescript/no-unsafe-unary-minus": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-useless-default-assignment": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/no-useless-empty-export": {
         "severity": "error"
@@ -1443,16 +1419,16 @@
         "severity": "error"
       },
       "typescript/require-array-sort-compare": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/restrict-template-expressions": {
-        "severity": "error"
+        "severity": "off"
       },
       "typescript/triple-slash-reference": {
         "severity": "error"
       },
       "typescript/unbound-method": {
-        "severity": "error"
+        "severity": "off"
       },
       "unicorn/no-await-in-promise-methods": {
         "severity": "error"

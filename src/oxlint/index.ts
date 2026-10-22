@@ -5,11 +5,11 @@ import { namingConventionOptions } from '../plugins/typescript.js';
 import { globs, scriptExtensions, testGlobs, testHelperGlobs } from './globs.js';
 import { type OxlintOptions, resolveOptions } from './options.js';
 import { jsPlugins } from './plugins.js';
-import { coreRules, jsRules, tsRules } from './rules/core.js';
+import { coreRules, correctnessExtras, jsRules, on, tsRules } from './rules/core.js';
 import { fileNamingRules, reactCompilerRules, reactRules, reactTsxRules } from './rules/react.js';
 import { stylisticJsxRules, stylisticRules } from './rules/stylistic.js';
 import { jestRules, mochaRules, playwrightRules, vitestRules } from './rules/tests.js';
-import { typeAwareRules } from './rules/type-aware.js';
+import { typeAwareOff, typeAwareRules } from './rules/type-aware.js';
 import { pointOxlintAtTsgolint } from './tsgolint.js';
 
 export type { OxlintOptions } from './options.js';
@@ -31,9 +31,10 @@ const alphabet = '_-.@/#~$0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
  *
  * Type-aware linting is on: `options.typeAware` is inherited into the consumer's root config, the only place
  * oxlint reads it, and the same option inherited into nested configs is ignored, so one `extends` per config is
- * all a monorepo needs. `typescript/no-for-in-array` therefore runs out of the box, as it did in v3; the
- * `typeChecked` tier stays opt-in. A consumer turns it off with `options: { typeAware: false }` in its root
- * config (verified to win over the inherited value).
+ * all a monorepo needs. `typescript/no-for-in-array` therefore runs out of the box on ts files, as it did in v3.
+ * The `typeChecked` tier, `fullCorrectness` and type-aware rules for js files (`typeAwareJs`) stay opt-in. A
+ * consumer turns type-aware linting off with `options: { typeAware: false }` in its root config (verified to win
+ * over the inherited value).
  *
  * The react, jest and vitest plugins are enabled inside the overrides for the files they apply to, as v3 did
  * with per-file config blocks. A plugin listed in an override is added for the matched files only, and the
@@ -59,13 +60,20 @@ export function oxlint(options: OxlintOptions = {}): OxlintConfig {
     {
       files: [globs.all],
       env: { node: true },
-      rules: { ...coreRules(o.console), ...stylisticRules(o.indent) },
+      rules: {
+        ...coreRules(o.console),
+        ...stylisticRules(o.indent),
+        // the correctness category enables type-aware rules for every file, they are switched on for ts below
+        ...typeAwareOff,
+        ...(o.fullCorrectness && on(correctnessExtras.all)),
+      },
     },
     {
       files: [globs.ts],
       rules: {
         ...tsRules(),
-        ...typeAwareRules(o.typeChecked),
+        ...(o.fullCorrectness && on(correctnessExtras.ts)),
+        ...typeAwareRules(o.typeChecked, o.fullCorrectness),
         'typescript-js/naming-convention': ['error', ...namingConventionOptions],
       },
     },
@@ -74,6 +82,14 @@ export function oxlint(options: OxlintOptions = {}): OxlintConfig {
       rules: jsRules(),
     },
   ];
+
+  const typeAwareJsFiles = o.typeAwareJs === true ? [globs.js] : o.typeAwareJs || [];
+  if (typeAwareJsFiles.length > 0) {
+    overrides.push({
+      files: typeAwareJsFiles,
+      rules: typeAwareRules(o.typeChecked, o.fullCorrectness),
+    });
+  }
 
   if (o.react) {
     overrides.push(

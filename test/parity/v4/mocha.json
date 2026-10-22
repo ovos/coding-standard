@@ -726,9 +726,6 @@
       "typescript/no-misused-new": {
         "severity": "error"
       },
-      "typescript/no-misused-promises": {
-        "severity": "off"
-      },
       "typescript/no-misused-spread": {
         "severity": "off"
       },
@@ -750,17 +747,11 @@
       "typescript/no-unnecessary-parameter-property-assignment": {
         "severity": "off"
       },
-      "typescript/no-unnecessary-type-assertion": {
-        "severity": "off"
-      },
       "typescript/no-unnecessary-type-constraint": {
         "severity": "error"
       },
       "typescript/no-unsafe-declaration-merging": {
         "severity": "error"
-      },
-      "typescript/no-unsafe-enum-comparison": {
-        "severity": "off"
       },
       "typescript/no-unsafe-function-type": {
         "severity": "error"
@@ -777,37 +768,22 @@
       "typescript/no-wrapper-object-types": {
         "severity": "error"
       },
-      "typescript/only-throw-error": {
-        "severity": "off"
-      },
       "typescript/prefer-as-const": {
         "severity": "error"
       },
       "typescript/prefer-namespace-keyword": {
         "severity": "error"
       },
-      "typescript/prefer-promise-reject-errors": {
-        "severity": "off"
-      },
       "typescript/require-array-sort-compare": {
         "severity": "off"
       },
-      "typescript/restrict-plus-operands": {
-        "severity": "off"
-      },
       "typescript/restrict-template-expressions": {
-        "severity": "off"
-      },
-      "typescript/switch-exhaustiveness-check": {
         "severity": "off"
       },
       "typescript/triple-slash-reference": {
         "severity": "error"
       },
       "typescript/unbound-method": {
-        "severity": "off"
-      },
-      "typescript/use-unknown-in-catch-callback-variable": {
         "severity": "off"
       },
       "unicorn/no-await-in-promise-methods": {
@@ -1579,9 +1555,6 @@
       "typescript/no-misused-new": {
         "severity": "error"
       },
-      "typescript/no-misused-promises": {
-        "severity": "off"
-      },
       "typescript/no-misused-spread": {
         "severity": "off"
       },
@@ -1603,17 +1576,11 @@
       "typescript/no-unnecessary-parameter-property-assignment": {
         "severity": "off"
       },
-      "typescript/no-unnecessary-type-assertion": {
-        "severity": "off"
-      },
       "typescript/no-unnecessary-type-constraint": {
         "severity": "error"
       },
       "typescript/no-unsafe-declaration-merging": {
         "severity": "error"
-      },
-      "typescript/no-unsafe-enum-comparison": {
-        "severity": "off"
       },
       "typescript/no-unsafe-function-type": {
         "severity": "error"
@@ -1630,37 +1597,22 @@
       "typescript/no-wrapper-object-types": {
         "severity": "error"
       },
-      "typescript/only-throw-error": {
-        "severity": "off"
-      },
       "typescript/prefer-as-const": {
         "severity": "error"
       },
       "typescript/prefer-namespace-keyword": {
         "severity": "error"
       },
-      "typescript/prefer-promise-reject-errors": {
-        "severity": "off"
-      },
       "typescript/require-array-sort-compare": {
         "severity": "off"
       },
-      "typescript/restrict-plus-operands": {
-        "severity": "off"
-      },
       "typescript/restrict-template-expressions": {
-        "severity": "off"
-      },
-      "typescript/switch-exhaustiveness-check": {
         "severity": "off"
       },
       "typescript/triple-slash-reference": {
         "severity": "error"
       },
       "typescript/unbound-method": {
-        "severity": "off"
-      },
-      "typescript/use-unknown-in-catch-callback-variable": {
         "severity": "off"
       },
       "unicorn/no-await-in-promise-methods": {

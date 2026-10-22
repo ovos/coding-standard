@@ -113,12 +113,44 @@ test('a11y, reactCompiler and typeChecked toggles', () => {
     ],
     'error',
   );
+  const all = '**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}';
   const ts = '**/*.{ts,mts,cts,tsx}';
-  assert.equal(overrideFor(oxlint(), ts)?.rules?.['typescript/no-floating-promises'], 'off');
+  assert.equal(overrideFor(oxlint(), all)?.rules?.['typescript/no-floating-promises'], 'off');
+  assert.equal(overrideFor(oxlint(), ts)?.rules?.['typescript/no-floating-promises'], undefined);
   assert.equal(
     overrideFor(oxlint({ typeChecked: true }), ts)?.rules?.['typescript/no-floating-promises'],
     'error',
   );
+});
+
+test('type-aware rules: ts files by default, js files with typeAwareJs, all of correctness with fullCorrectness', () => {
+  const all = '**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}';
+  const ts = '**/*.{ts,mts,cts,tsx}';
+  const js = '**/*.{js,mjs,cjs,jsx}';
+  const jsOverrides = (config: ReturnType<typeof oxlint>) =>
+    overrides(config).filter((o) => o.files.includes(js));
+
+  // the correctness category turns them on for every file, the all-files block off, the ts block back on
+  const base = oxlint();
+  assert.equal(overrideFor(base, all)?.rules?.['typescript/no-for-in-array'], 'off');
+  assert.equal(overrideFor(base, ts)?.rules?.['typescript/no-for-in-array'], 'error');
+  assert.ok(jsOverrides(base).every((o) => o.rules?.['typescript/no-for-in-array'] === undefined));
+
+  // typeAwareJs adds a later override for js files, or for the given globs, with the same rules as ts
+  const jsAll = jsOverrides(oxlint({ typeAwareJs: true })).at(-1);
+  assert.equal(jsAll?.rules?.['typescript/no-for-in-array'], 'error');
+  const scripts = overrideFor(
+    oxlint({ typeAwareJs: ['scripts/**/*.js'], typeChecked: true }),
+    'scripts/**/*.js',
+  );
+  assert.equal(scripts?.rules?.['typescript/no-floating-promises'], 'error');
+
+  const full = oxlint({ fullCorrectness: true });
+  assert.equal(overrideFor(full, all)?.rules?.['unicorn/no-thenable'], 'error');
+  assert.equal(overrideFor(full, ts)?.rules?.['typescript/no-useless-empty-export'], 'error');
+  assert.equal(overrideFor(full, ts)?.rules?.['typescript/unbound-method'], 'error');
+  // still ts only: js files keep the all-files off list
+  assert.ok(jsOverrides(full).every((o) => o.rules?.['typescript/unbound-method'] === undefined));
 });
 
 test('config is JSON-serialisable (plain object, absolute plugin paths)', () => {

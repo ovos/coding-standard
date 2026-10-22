@@ -14,6 +14,29 @@ const noUnusedVars: Rules['no-unused-vars'] = [
   { varsIgnorePattern: '^_', args: 'none', caughtErrors: 'none' },
 ];
 
+const severity = (rules: readonly string[], level: 'error' | 'off'): Rules =>
+  Object.fromEntries(rules.map((rule) => [rule, level]));
+export const on = (rules: readonly string[]): Rules => severity(rules, 'error');
+export const off = (rules: readonly string[]): Rules => severity(rules, 'off');
+
+// rules of oxlint's correctness category this standard leaves out, as v3 did not have them. the `fullCorrectness`
+// option turns them on
+export const correctnessExtras = {
+  all: [
+    // reports a missing default export for bundler imports like `./worker.mjs?url`, whose default the bundler
+    // provides
+    'import/default',
+    // reports every computed access like `ns[key]` on `import * as ns`, unless `allowComputed` is set
+    'import/namespace',
+    // `then` is also the JSON Schema keyword (if/then/else) used in model schemas. the rule cannot tell the two apart
+    'unicorn/no-thenable',
+  ],
+  ts: [
+    'typescript/no-unnecessary-parameter-property-assignment',
+    'typescript/no-useless-empty-export',
+  ],
+};
+
 // rules for every file. oxlint's `correctness` category (set to error by the config) covers most of
 // eslint:recommended and typescript-eslint recommended; the ones it does not enable by default are listed here.
 export function coreRules(consoleUsage: ConsoleUsage): Rules {
@@ -38,10 +61,7 @@ export function coreRules(consoleUsage: ConsoleUsage): Rules {
     curly: ['error', 'multi-line'],
     eqeqeq: 'error',
     'import/no-duplicates': ['error', { preferInline: true }],
-    // on by default with oxlint's import plugin but not part of v3; they need module resolution and report
-    // esm/cjs interop and computed namespace access
-    'import/default': 'off',
-    'import/namespace': 'off',
+    ...off(correctnessExtras.all),
     'no-array-constructor': 'error',
     'no-else-return': 'error',
     'no-eval': 'error',
@@ -55,9 +75,6 @@ export function coreRules(consoleUsage: ConsoleUsage): Rules {
     'prefer-const': 'error',
     'prefer-rest-params': 'error',
     'prefer-spread': 'error',
-    // in oxlint's correctness category, but `then` is also the JSON Schema keyword (if/then/else) used in model
-    // schemas; the rule cannot tell the two apart
-    'unicorn/no-thenable': 'off',
     ...(consoleUsage === 'ban' && { 'no-console': 'error' }),
     ...(consoleUsage === 'ban-log' && {
       'no-console': ['error', { allow: ['error', 'warn', 'info'] }],
@@ -79,6 +96,7 @@ export function tsRules(): Rules {
     // allow `interface I extends Base<Param> {}`
     'typescript/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
     'typescript/ban-tslint-comment': 'error',
+    ...off(correctnessExtras.ts),
   };
 }
 

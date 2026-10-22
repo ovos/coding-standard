@@ -30,6 +30,19 @@ test('base config: naming, camelcase, stylistic, perfectionist and the type-awar
   lacks(found, 'src/legacy.js:radix');
   lacks(found, 'src/legacy.js:eslint-js/radix');
   cleanFile(found, 'src/clean.ts');
+  // type-aware rules run on ts files only, and only no-for-in-array by default
+  lacks(found, 'src/forIn.js:typescript/no-for-in-array');
+  lacks(found, 'src/unbound.ts:typescript/unbound-method');
+});
+
+test('typeAwareJs extends type-aware rules to js files, fullCorrectness turns on the whole category', () => {
+  has(
+    runOxlint('base', { options: { typeAwareJs: true } }),
+    'src/forIn.js:typescript/no-for-in-array',
+  );
+  const full = runOxlint('base', { options: { fullCorrectness: true } });
+  has(full, 'src/unbound.ts:typescript/unbound-method');
+  lacks(full, 'src/forIn.js:typescript/no-for-in-array');
 });
 
 test('react config: file naming, hooks and jsx quotes; react rules stay out of plain ts files', () => {
