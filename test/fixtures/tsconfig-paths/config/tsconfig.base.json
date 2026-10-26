@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "*": ["../app/src/*"],
+      "~common/*": ["../common/src/*"],
+      "@app/*": ["../app/src/*"],
+      "config": ["../app/config.ts"],
+      "react": ["../app/node_modules/@types/react"]
+    }
+  }
+}

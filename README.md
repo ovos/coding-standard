@@ -113,7 +113,13 @@ export default prettier;
 
 Both exports share one base: `printWidth: 100`, `singleQuote`, `trailingComma: 'all'`, indent from the option.
 The oxfmt export also sorts import declarations like v3's `import/order`: builtin, external, `~` aliases as a
-group of their own, other internal imports, parent, then sibling and index, with a blank line between groups.
+group of their own, local absolute imports, parent, then sibling and index, with a blank line between groups.
+v3 found the local absolute imports with the TypeScript resolver. oxfmt cannot resolve imports, so `oxfmt()` reads
+them from the nearest `tsconfig.json`: with `"*": ["./src/*"]` or a `baseUrl`, every entry of that directory is
+local (`helpers`, `helpers/download`), and other `paths` keys like `@app/*` are taken as they are, unless they
+map into `node_modules`.
+A bare Node built-in name like `http` stays builtin, as in v3. The `tsconfig` option points to another directory or
+tsconfig file, for example `oxfmt({ tsconfig: 'tsconfig.app.json' })`.
 Formatting is enforced by the `stylistic/*` lint rules; oxfmt and Prettier are on-demand tools whose output
 passes those rules. Per-directory formatting differences go through oxfmt `overrides` or a nested
 `oxfmt.config.ts`.
@@ -130,6 +136,10 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 - `ignorePatterns` belong to the config that governs a file: they are not inherited through `extends`, and the
   root config's patterns do not reach files under a package with its own config. v3's mocha block ignored
   `__snapshots__` directories; a package with snapshot files adds `ignorePatterns: ['**/__snapshots__']` itself.
+- A package whose tsconfig has its own `paths` gets an `oxfmt.config.ts` with
+  `defineConfig(oxfmt({ tsconfig: import.meta.dirname }))`. One `oxfmt` run from the root applies it to the
+  files below it, but loads it with the root as the current directory,
+  so without the option it would read the root's tsconfig.
 
 ```json
 {
@@ -165,7 +175,7 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 | `trailingComma: 'es5'` in the Prettier export | `'all'`; the `comma-dangle` lint rule accepts both styles |
 | `@stylistic/*` rules | same rules, `stylistic/*` under oxlint; `jsx-self-closing-comp` and `jsx-curly-brace-presence` became `react/*` |
 | `@stylistic/generator-star-spacing`, `yield-star-spacing` | now `after` (`function* f`), what oxfmt and Prettier print |
-| `import/order` | oxfmt's `sortImports`, on demand |
+| `import/order` | oxfmt's `sortImports`, on demand. Local absolute imports come from the tsconfig, not from `eslint-import-resolver-typescript`, see above |
 | `react/jsx-no-bind` | removed |
 | `react/prop-types`, `react/no-deprecated` | not implemented by oxlint; the rest of eslint-plugin-react recommended is |
 | `check-file/filename-naming-convention` | same rule and globs, [eslint-plugin-check-file](https://github.com/dukeluo/eslint-plugin-check-file) 2.x to 3.3 as a JS plugin; acronyms (`AIPanel.tsx`) stay valid, a camelCase `.tsx` file that 2.x let through is reported |

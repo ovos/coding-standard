@@ -6,9 +6,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
-import { oxfmt } from './oxfmt.js';
+import { localImportPatterns, oxfmt } from './oxfmt.js';
+import { fixturesRoot } from './smoke-helpers.js';
 
 const require = createRequire(import.meta.url);
+const pathsFixture = path.join(fixturesRoot, 'tsconfig-paths');
 const oxfmtBin = path.join(path.dirname(require.resolve('oxfmt/package.json')), 'bin', 'oxfmt');
 
 // formats `source` as `file` with the given oxfmt config and returns the output
@@ -104,6 +106,85 @@ test('`~` imports stay a group of their own before the other internal imports', 
       "import { download } from 'helpers/download';",
       '',
       'export { download, React, useTranslation };',
+      '',
+    ].join('\n'),
+  );
+});
+
+test('local absolute imports come from the tsconfig paths, through extends', () => {
+  // `react` maps into node_modules and `~common/*` belongs to the `~` group, so neither is listed
+  assert.deepEqual(localImportPatterns(path.join(pathsFixture, 'app')), [
+    '@app/*',
+    '@app/*/**',
+    'App',
+    'App/**',
+    'config',
+    'global',
+    'global/**',
+    'helpers',
+    'helpers/**',
+    // a bare `http` stays builtin, as in v3
+    'http/**',
+    'styles.less',
+    'styles.less/**',
+  ]);
+  // a tsconfig file instead of a directory, here one with `baseUrl`
+  assert.deepEqual(localImportPatterns(path.join(pathsFixture, 'app', 'tsconfig.types.json')), [
+    'vendor',
+    'vendor/**',
+  ]);
+  assert.deepEqual(localImportPatterns(path.join(pathsFixture, 'plain')), []);
+  assert.deepEqual(
+    oxfmt({ tsconfig: path.join(pathsFixture, 'plain') }).sortImports,
+    oxfmt().sortImports,
+  );
+});
+
+test('a paths target in node_modules is not local', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'oxfmt-paths-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'node_modules', 'react'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'src', 'helpers'), { recursive: true });
+    const paths = { '*': ['./node_modules/*', './src/*'] };
+    fs.writeFileSync(
+      path.join(dir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths } }),
+    );
+    assert.deepEqual(localImportPatterns(dir), ['helpers', 'helpers/**']);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('local absolute imports are a group of their own after the `~` group', () => {
+  const source = [
+    "import { client } from 'http/client';",
+    "import Card from '../Card';",
+    "import { download } from 'helpers/download';",
+    "import { useTranslation } from '~common/i18n';",
+    "import http from 'http';",
+    "import { x } from '@app/x';",
+    "import React from 'react';",
+    '',
+    'export { Card, client, download, http, React, useTranslation, x };',
+    '',
+  ].join('\n');
+  assert.equal(
+    format(oxfmt({ tsconfig: path.join(pathsFixture, 'app') }), 'src/a.ts', source),
+    [
+      "import http from 'http';",
+      '',
+      "import React from 'react';",
+      '',
+      "import { useTranslation } from '~common/i18n';",
+      '',
+      "import { x } from '@app/x';",
+      "import { download } from 'helpers/download';",
+      "import { client } from 'http/client';",
+      '',
+      "import Card from '../Card';",
+      '',
+      'export { Card, client, download, http, React, useTranslation, x };',
       '',
     ].join('\n'),
   );
