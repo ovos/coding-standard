@@ -162,6 +162,8 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 
 ## Migrating from v3
 
+Why v4 works the way it does, with the reasons for each decision: [ADR 1](docs/adr/0001-oxlint-and-oxfmt.md).
+
 | v3 | v4 |
 |---|---|
 | `@ovos-media/coding-standard/eslint` | removed; `@ovos-media/coding-standard/oxlint` |
