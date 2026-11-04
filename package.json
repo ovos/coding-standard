@@ -1,6 +1,6 @@
 {
   "name": "@ovos-media/coding-standard",
-  "version": "4.0.0",
+  "version": "4.0.0-rc.0",
   "description": "ovos-media coding standard: shared oxlint, oxfmt and prettier configuration",
   "homepage": "https://github.com/ovos/coding-standard",
   "license": "MIT",
