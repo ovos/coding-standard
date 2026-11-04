@@ -9,7 +9,9 @@
   "files": [
     "dist",
     "!dist/**/*.test.js",
-    "!dist/**/*.test.d.ts"
+    "!dist/**/*.test.d.ts",
+    "!dist/smoke-helpers.*",
+    "!dist/plugins/rule-tester.*"
   ],
   "type": "module",
   "main": "./dist/index.js",

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -35,6 +36,20 @@ test('every required peer of a runtime dependency is a runtime dependency too', 
     }
   }
   assert.deepEqual(missing, []);
+});
+
+// test helpers sit in src next to the tests and build into dist, where only the tests use them
+test('the npm package ships no tests and no test helpers', () => {
+  const result = spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(result.status, 0, result.stderr);
+  const [{ files }] = JSON.parse(result.stdout) as [{ files: { path: string }[] }];
+  const leftovers = files
+    .map((file) => file.path)
+    .filter((file) => /\.test\.|smoke-helpers|rule-tester/.test(file));
+  assert.deepEqual(leftovers, []);
 });
 
 // the typescript-eslint package pins plugin, parser and utils to one exact release. separate @typescript-eslint/*
