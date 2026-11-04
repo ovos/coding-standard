@@ -176,6 +176,7 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 | `@stylistic/*` rules | same rules, `stylistic/*` under oxlint; `jsx-self-closing-comp` and `jsx-curly-brace-presence` became `react/*` |
 | `@stylistic/generator-star-spacing`, `yield-star-spacing` | now `after` (`function* f`), what oxfmt and Prettier print |
 | `import/order` | oxfmt's `sortImports`, on demand. Local absolute imports come from the tsconfig, not from `eslint-import-resolver-typescript`, see above |
+| `'import/order': 'off'` in a package config | `sortImports: false` in that package's `oxfmt.config.ts`: `defineConfig({ ...oxfmt({ tsconfig: import.meta.dirname }), sortImports: false })`. Where imports form a cycle, their order decides which module runs first, so sorting can break the app |
 | `react/jsx-no-bind` | removed |
 | `react/prop-types`, `react/no-deprecated` | not implemented by oxlint; the rest of eslint-plugin-react recommended is |
 | `check-file/filename-naming-convention` | same rule and globs, [eslint-plugin-check-file](https://github.com/dukeluo/eslint-plugin-check-file) 2.x to 3.3 as a JS plugin; acronyms (`AIPanel.tsx`) stay valid, a camelCase `.tsx` file that 2.x let through is reported |
