@@ -1,36 +1,73 @@
 export type OxlintOptions = {
-  // whether to ban or allow console usage. defaults to 'ban-log' (allows console.error/warn/info) when react is
-  // enabled, 'allow' otherwise
+  /**
+   * whether to ban or allow console usage. 'ban-log' allows console.error/warn/info
+   * @default 'ban-log' when react is enabled, 'allow' otherwise
+   */
   console?: 'ban' | 'ban-log' | 'allow';
-  // number of spaces to use for indentation, or 'tab' (default: 2)
+  /**
+   * number of spaces to use for indentation, or 'tab'
+   * @default 2
+   */
   indent?: number | 'tab';
-  // directory where test files are located (default: `{spec,test,tests}`). files in __tests__ folders and files
-  // named *.spec.* / *.test.* are picked up as test files anywhere
+  /**
+   * directory where test files are located.
+   * files in __tests__ folders and files named *.spec.* / *.test.* are picked up as test files anywhere
+   * @default '{spec,test,tests}'
+   */
   testsDir?: string;
-  // jest-specific rules and globals for test files
+  /**
+   * jest-specific rules and globals for test files
+   * @default false
+   */
   jest?: boolean;
-  // mocha-specific rules and globals for test files
+  /**
+   * mocha-specific rules and globals for test files
+   * @default false
+   */
   mocha?: boolean;
-  // playwright-specific rules for test files
+  /**
+   * playwright-specific rules for test files
+   * @default false
+   */
   playwright?: boolean;
-  // react rules, jsx layout rules and component file naming for jsx/tsx files
+  /**
+   * react rules, jsx layout rules and component file naming for jsx/tsx files
+   * @default false
+   */
   react?: boolean;
-  // vitest-specific rules and globals for test files
+  /**
+   * vitest-specific rules and globals for test files
+   * @default false
+   */
   vitest?: boolean;
-  // React Compiler rules (react/immutability, react/purity, react/refs, ...). off until a project adopts the
-  // compiler
+  /**
+   * React Compiler rules (react/immutability, react/purity, react/refs, ...), for projects that adopted the compiler
+   * @default false
+   */
   reactCompiler?: boolean;
-  // type-aware runtime-bug catchers (no-floating-promises, no-misused-promises, ...). needs the root config's
-  // `options: { typeAware: true }` and oxlint-tsgolint to have any effect
+  /**
+   * type-aware runtime-bug catchers (no-floating-promises, no-misused-promises, ...).
+   * needs the root config's `options: { typeAware: true }` and oxlint-tsgolint to have any effect
+   * @default false
+   */
   typeChecked?: boolean;
-  // every rule of oxlint's correctness category, including its type-aware rules and the few this standard leaves
-  // out. covers the plugins enabled at the top level. the category does not reach the react, jest and vitest
-  // rules listed in overrides
+  /**
+   * every rule of oxlint's correctness category, including its type-aware rules and the few this standard leaves out.
+   * covers the plugins enabled at the top level, but not the react, jest and vitest rules listed in overrides
+   * @default false
+   */
   fullCorrectness?: boolean;
-  // type-aware rules for js files too: `true` for every js file, or a list of globs. off by default, as in v3,
-  // because plain js has inferred types only. the files should be in a tsconfig with `allowJs`, ideally `checkJs`
+  /**
+   * type-aware rules for js files too: `true` for every js file, or a list of globs.
+   * off by default as in v3, because plain js has inferred types only.
+   * the files should be in a tsconfig with `allowJs`, ideally `checkJs`
+   * @default false
+   */
   typeAwareJs?: boolean | string[];
-  // oxlint's built-in jsx-a11y rules
+  /**
+   * oxlint's built-in jsx-a11y rules
+   * @default false
+   */
   a11y?: boolean;
 };
 
