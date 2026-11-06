@@ -121,7 +121,7 @@ oxfmt, from the same project, formats JS and TS exactly like Prettier 3.
   A package with its own tsconfig `paths` also gets an `oxfmt.config.ts`
   with `oxfmt({ tsconfig: import.meta.dirname })`.
   oxfmt runs every package's config from the root directory, so it can't find the package's tsconfig alone.
-- **Config files written in TypeScript need Node `^20.19.0 || >=22.18.0`.**
+- **Node `>=22.18.0`.** oxlint refuses `oxlint.config.ts` on older versions.
 
 ## Later
 

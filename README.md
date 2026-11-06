@@ -13,7 +13,7 @@ yarn add --dev @ovos-media/coding-standard
 
 | Requirement | Value | Why |
 |---|---|---|
-| Node.js | `^20.19.0 \|\| >=22.18.0` | oxlint loads `oxlint.config.ts` through Node's type stripping |
+| Node.js | `>=22.18.0` | oxlint refuses `oxlint.config.ts` on older versions, it loads the file through Node's type stripping |
 | `oxlint`, `oxfmt`, `oxlint-tsgolint` | installed by this package | regular dependencies, one install gets the runners and the type-aware engine |
 | tsconfig files | valid under TypeScript 6/7 semantics | tsgolint refuses `baseUrl` and `moduleResolution: node10`, see below |
 
