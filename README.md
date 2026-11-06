@@ -20,8 +20,8 @@ yarn add --dev @ovos-media/coding-standard
 ## `oxlint.config.ts`
 
 ```ts
-import { defineConfig } from 'oxlint';
 import { oxlint } from '@ovos-media/coding-standard';
+import { defineConfig } from 'oxlint';
 
 export default defineConfig({
   extends: [oxlint({ react: true, vitest: true })],
@@ -121,8 +121,8 @@ For a single import: `// eslint-disable-next-line perfectionist/sort-imports`.
 ## `oxfmt.config.ts` and `prettier.config.js`
 
 ```ts
-import { defineConfig } from 'oxfmt';
 import { oxfmt } from '@ovos-media/coding-standard';
+import { defineConfig } from 'oxfmt';
 
 export default defineConfig(oxfmt());
 // with overrides: oxfmt has no `extends`, spread instead
