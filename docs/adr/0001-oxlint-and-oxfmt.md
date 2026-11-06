@@ -71,7 +71,7 @@ oxfmt, from the same project, formats JS and TS exactly like Prettier 3.
   Our code was never formatted with Prettier.
   Making a formatter the check would mean reformatting almost everything at once: 1,003 of 1,319 files in one package.
 - **Trailing commas: `all`**, the default of both oxfmt and Prettier. The lint accepts both styles.
-  A project may set its formatter to `es5`. This is provisional, and a later ADR will settle it.
+  A project may set its formatter to `es5` in its own oxfmt config.
 - **oxfmt sorts imports into v3's groups**, with a blank line between them:
   builtin, external, `~` aliases, local absolute imports, parent, then sibling and index.
 - **Local absolute imports come from the tsconfig.** `helpers/download` looks like an npm package,
@@ -134,7 +134,6 @@ oxfmt, from the same project, formats JS and TS exactly like Prettier 3.
   The README describes what that would take.
 - **Move to `@stylistic` v6.** Its new `list-style` rule reports about 1,800 findings in three of our packages,
   so it waits for a minor release of its own.
-- **Settle trailing commas**, see above.
 
 ## More detail
 
