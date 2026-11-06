@@ -58,6 +58,8 @@ export function localImportPatterns(tsconfig: string): string[] {
 // the groups v3's import/order enforced, with a blank line between them: builtin, external, `~` aliases, local absolute
 // imports, parent, sibling and index. oxfmt doesn't sort imports here, so this rule alone decides their order.
 // side-effect imports like `import './env'` keep their position, because `side-effect` isn't listed in `groups`.
+// `require` calls go last, as v3 ranked them, and stay unsorted, because their order decides what runs first.
+// the rule also sees `require` calls inside functions, which v3 ignored, and `unsorted` leaves those alone too
 export function importOrderRules(sortImports: boolean, tsconfig: string): Rules {
   if (!sortImports) return {};
   const local = localImportPatterns(tsconfig);
@@ -70,6 +72,7 @@ export function importOrderRules(sortImports: boolean, tsconfig: string): Rules 
         internalPattern: ['^~'],
         newlinesBetween: 1,
         customGroups: [
+          { groupName: 'require', modifiers: ['require'], type: 'unsorted' },
           { groupName: 'tilde', elementNamePattern: ['^~'] },
           ...(local.length > 0 ? [{ groupName: 'local', elementNamePattern: local }] : []),
         ],
@@ -81,6 +84,7 @@ export function importOrderRules(sortImports: boolean, tsconfig: string): Rules 
           'parent',
           ['sibling', 'index'],
           'unknown',
+          'require',
         ],
       },
     ],

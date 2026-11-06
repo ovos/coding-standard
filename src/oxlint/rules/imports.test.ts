@@ -58,13 +58,13 @@ test('the local group only exists with local imports', () => {
   const plain = options(path.join(pathsFixture, 'plain'));
   assert.deepEqual(
     plain.customGroups.map((group) => group.groupName),
-    ['tilde'],
+    ['require', 'tilde'],
   );
   assert.ok(plain.groups.includes('internal'));
   const app = options(path.join(pathsFixture, 'app'));
   assert.deepEqual(
     app.customGroups.map((group) => group.groupName),
-    ['tilde', 'local'],
+    ['require', 'tilde', 'local'],
   );
   assert.deepEqual(app.groups[3], ['local', 'internal']);
 });

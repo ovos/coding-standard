@@ -329,6 +329,13 @@
             "newlinesBetween": 1,
             "customGroups": [
               {
+                "groupName": "require",
+                "modifiers": [
+                  "require"
+                ],
+                "type": "unsorted"
+              },
+              {
                 "groupName": "tilde",
                 "elementNamePattern": [
                   "^~"
@@ -345,7 +352,8 @@
                 "sibling",
                 "index"
               ],
-              "unknown"
+              "unknown",
+              "require"
             ]
           }
         ]
@@ -1146,6 +1154,13 @@
             "newlinesBetween": 1,
             "customGroups": [
               {
+                "groupName": "require",
+                "modifiers": [
+                  "require"
+                ],
+                "type": "unsorted"
+              },
+              {
                 "groupName": "tilde",
                 "elementNamePattern": [
                   "^~"
@@ -1162,7 +1177,8 @@
                 "sibling",
                 "index"
               ],
-              "unknown"
+              "unknown",
+              "require"
             ]
           }
         ]

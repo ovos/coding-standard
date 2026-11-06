@@ -54,6 +54,9 @@ test('import order: reported as in v3, off with sortImports: false or an inline 
   // v3's groups in v3's order, a side-effect import among them
   cleanFile(found, 'src/importGroups.ts');
   cleanFile(found, 'src/importDisabled.ts');
+  // `require` after every import as in v3, their own order stays
+  lacks(found, 'src/importRequire.ts:perfectionist/sort-imports');
+  has(found, 'src/importRequireFirst.ts:perfectionist/sort-imports');
   // without the tsconfig, `helpers/download` is an npm package and sorted before `react`
   cleanFile(found, 'src/importLocal.ts');
   lacks(
