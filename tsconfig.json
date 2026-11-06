@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
-    "lib": ["es2022"],
-    "module": "node16",
+    "lib": ["es2023"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "target": "es2022",
-    "moduleResolution": "node16",
     "strict": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
     "declaration": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["node"]
   },
-  "include": ["index.ts", "eslint.ts", "types.d.ts"]
+  "include": ["src"]
 }
