@@ -52,6 +52,8 @@ oxfmt, from the same project, formats JS and TS exactly like Prettier 3.
   - `react/jsx-no-bind`: it's in no recommended set, and every finding in our code was suppressed
   - `radix`: ESLint 10 and oxlint both changed what it checks, and neither matches v3 any more
   - the `cypress` option, replaced by `playwright`
+  - `react/no-deprecated`: oxlint doesn't have it, so calls to deprecated React APIs are no longer flagged
+  - `@stylistic/jsx-props-no-multi-spaces`: it crashes under oxlint, so only oxfmt removes double spaces in JSX props
 - **Off by default:**
   - jsx-a11y, because it reports 600 findings on our three React packages
   - the React Compiler rules, which only make sense once a project uses the compiler
@@ -72,15 +74,21 @@ oxfmt, from the same project, formats JS and TS exactly like Prettier 3.
   Making a formatter the check would mean reformatting almost everything at once: 1,003 of 1,319 files in one package.
 - **Trailing commas: `all`**, the default of both oxfmt and Prettier. The lint accepts both styles.
   A project may set its formatter to `es5` in its own oxfmt config.
-- **oxfmt sorts imports into v3's groups**, with a blank line between them:
+- **The lint owns import order.** `perfectionist/sort-imports` checks v3's groups, with a blank line between them:
   builtin, external, `~` aliases, local absolute imports, parent, then sibling and index.
+  It shows up in the editor and in CI, and `oxlint --fix` sorts, as `eslint --fix` did in v3.
+  On 1,824 files it takes 0.69 s, about the same as `import/order` in v3 (0.67 s).
+- **oxfmt doesn't sort imports,** although it can, and faster.
+  It only sorts when someone runs it, shows nothing in the editor and fails nothing in CI.
+  Both tools sorting would give two sources of truth, and they undo each other around side-effect imports.
+  v3's split was the same: Prettier formatted, `eslint --fix` sorted.
 - **Local absolute imports come from the tsconfig.** `helpers/download` looks like an npm package,
   but a tsconfig path like `"*": ["./src/*"]` makes it a local file. v3 knew this through
   [eslint-import-resolver-typescript](https://github.com/import-js/eslint-import-resolver-typescript).
-  oxfmt can't resolve imports, so `oxfmt()` reads the tsconfig itself and lists the names.
+  So `oxlint()` reads the tsconfig itself and lists the names.
 - **The tsconfig is read with [get-tsconfig](https://github.com/privatenumber/get-tsconfig).**
   [TypeScript](https://github.com/microsoft/TypeScript)'s own API for that no longer exists in TypeScript 7.0,
-  and 7.1 replaces it with a different one. This way formatting works with any TypeScript version.
+  and 7.1 replaces it with a different one. This way the config loads with any TypeScript version.
 
 ### Dependencies
 
@@ -112,15 +120,16 @@ oxfmt, from the same project, formats JS and TS exactly like Prettier 3.
 - **To change a rule this config sets, a project needs an override with matching `files`.**
   A plain top-level `rules` entry loses, because oxlint applies overrides last.
   For react, jest and vitest rules, the override must also list the plugin.
-- **Import order is no longer checked**, only fixed when someone formats.
-  A package that had `import/order` off, for example because of import cycles, sets `sortImports: false`
-  in its own oxfmt config. In a cycle, import order decides which module runs first.
+- **A package that had `import/order` off** sets `oxlint({ sortImports: false })`, for example because of import cycles.
+  In a cycle, import order decides which module runs first.
+- **`oxlint --fix` can move an import across a side-effect import.** The rule keeps side-effect imports in place,
+  but not the imports around them. On 3,318 files of our largest project that never happened.
+  A single import can opt out with a disable comment.
 - **Projects drop `prettier` from their dependencies.**
   A code generator that runs `prettier --write` should run `oxfmt` instead.
 - **In a monorepo, each package keeps its own `oxlint.config.ts`.**
-  A package with its own tsconfig `paths` also gets an `oxfmt.config.ts`
-  with `oxfmt({ tsconfig: import.meta.dirname })`.
-  oxfmt runs every package's config from the root directory, so it can't find the package's tsconfig alone.
+  A package with its own tsconfig `paths` passes `oxlint({ tsconfig: import.meta.dirname })`.
+  oxlint runs from the root directory, so `oxlint()` can't find the package's tsconfig alone.
 - **Node `>=22.18.0`.** oxlint refuses `oxlint.config.ts` on older versions.
 
 ## Later

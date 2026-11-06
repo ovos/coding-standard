@@ -331,6 +331,39 @@
       "oxc/uninvoked-array-callback": {
         "severity": "error"
       },
+      "perfectionist/sort-imports": {
+        "severity": "error",
+        "options": [
+          {
+            "type": "alphabetical",
+            "ignoreCase": true,
+            "internalPattern": [
+              "^~"
+            ],
+            "newlinesBetween": 1,
+            "customGroups": [
+              {
+                "groupName": "tilde",
+                "elementNamePattern": [
+                  "^~"
+                ]
+              }
+            ],
+            "groups": [
+              "builtin",
+              "external",
+              "tilde",
+              "internal",
+              "parent",
+              [
+                "sibling",
+                "index"
+              ],
+              "unknown"
+            ]
+          }
+        ]
+      },
       "perfectionist/sort-named-exports": {
         "severity": "error",
         "options": [
@@ -1289,6 +1322,39 @@
       "oxc/uninvoked-array-callback": {
         "severity": "error"
       },
+      "perfectionist/sort-imports": {
+        "severity": "error",
+        "options": [
+          {
+            "type": "alphabetical",
+            "ignoreCase": true,
+            "internalPattern": [
+              "^~"
+            ],
+            "newlinesBetween": 1,
+            "customGroups": [
+              {
+                "groupName": "tilde",
+                "elementNamePattern": [
+                  "^~"
+                ]
+              }
+            ],
+            "groups": [
+              "builtin",
+              "external",
+              "tilde",
+              "internal",
+              "parent",
+              [
+                "sibling",
+                "index"
+              ],
+              "unknown"
+            ]
+          }
+        ]
+      },
       "perfectionist/sort-named-exports": {
         "severity": "error",
         "options": [
@@ -2164,6 +2230,39 @@
       },
       "oxc/uninvoked-array-callback": {
         "severity": "error"
+      },
+      "perfectionist/sort-imports": {
+        "severity": "error",
+        "options": [
+          {
+            "type": "alphabetical",
+            "ignoreCase": true,
+            "internalPattern": [
+              "^~"
+            ],
+            "newlinesBetween": 1,
+            "customGroups": [
+              {
+                "groupName": "tilde",
+                "elementNamePattern": [
+                  "^~"
+                ]
+              }
+            ],
+            "groups": [
+              "builtin",
+              "external",
+              "tilde",
+              "internal",
+              "parent",
+              [
+                "sibling",
+                "index"
+              ],
+              "unknown"
+            ]
+          }
+        ]
       },
       "perfectionist/sort-named-exports": {
         "severity": "error",

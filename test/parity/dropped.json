@@ -6,6 +6,5 @@
   "react/no-deprecated": "not implemented by oxlint",
   "react/jsx-uses-react": "only existed to keep no-unused-vars quiet about jsx; oxlint handles jsx usage natively",
   "react/jsx-uses-vars": "only existed to keep no-unused-vars quiet about jsx; oxlint handles jsx usage natively",
-  "import/order": "import declaration order is oxfmt's sortImports, on demand (spec 11.5)",
   "@stylistic/jsx-props-no-multi-spaces": "crashes under oxlint's plugin bridge on some jsx files; removed in stylistic v6"
 }

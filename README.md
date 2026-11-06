@@ -67,6 +67,8 @@ Two oxlint rules of thumb for your own additions:
 | `typeChecked` | `boolean` | `false` | type-aware runtime-bug catchers (`no-floating-promises`, `no-misused-promises`, ...) |
 | `fullCorrectness` | `boolean` | `false` | every rule of oxlint's `correctness` category: its 15 type-aware rules and the four this standard leaves out (`import/default`, `unicorn/no-thenable`, two typescript rules). Covers the plugins enabled at the top level |
 | `typeAwareJs` | `boolean \| string[]` | `false` | type-aware rules for js files too: `true` for every js file, or a list of globs |
+| `tsconfig` | `string` | nearest `tsconfig.json` from the current directory up | directory or tsconfig file whose `paths` define the local absolute imports, see [Import order](#import-order) |
+| `sortImports` | `boolean` | `true` | report import order and groups, see [Import order](#import-order) |
 | `a11y` | `boolean` | `false` | oxlint's built-in `jsx-a11y` rules |
 
 Every rule is an error. Warnings are not used.
@@ -94,6 +96,28 @@ tsgolint implements TypeScript 7 semantics. Projects must not use `baseUrl` or `
 5.9 accepts them. Files outside every tsconfig are still checked, with TypeScript's default compiler options
 (tsgolint's debug log lists them as `Unmatched file`).
 
+### Import order
+
+`perfectionist/sort-imports` shows import order in the editor and in CI, as `import/order` did in v3.
+`oxlint --fix` sorts them.
+oxfmt doesn't sort imports, so one tool decides, and nothing undoes it.
+
+The groups, with a blank line between them:
+builtin, external, `~` aliases, local absolute imports, parent, then sibling and index.
+Side-effect imports like `import './env'` keep their position.
+
+Local absolute imports like `helpers/download` look like npm packages,
+so `oxlint()` reads them from the nearest `tsconfig.json`.
+With `"*": ["./src/*"]` or a `baseUrl`, every entry of that directory is local.
+Other `paths` keys like `@app/*` count too, unless they map into `node_modules`.
+A bare Node built-in name like `http` stays builtin, as in v3.
+The `tsconfig` option points to another directory or tsconfig file,
+for example `oxlint({ tsconfig: 'tsconfig.app.json' })`.
+
+A package whose imports must stay in their order sets `oxlint({ sortImports: false })`.
+That's for import cycles, for example, where import order decides which module runs first.
+For a single import: `// eslint-disable-next-line perfectionist/sort-imports`.
+
 ## `oxfmt.config.ts` and `prettier.config.js`
 
 ```ts
@@ -112,14 +136,6 @@ export default prettier;
 ```
 
 Both exports share one base: `printWidth: 100`, `singleQuote`, `trailingComma: 'all'`, indent from the option.
-The oxfmt export also sorts import declarations like v3's `import/order`: builtin, external, `~` aliases as a
-group of their own, local absolute imports, parent, then sibling and index, with a blank line between groups.
-v3 found the local absolute imports with the TypeScript resolver. oxfmt cannot resolve imports, so `oxfmt()` reads
-them from the nearest `tsconfig.json`: with `"*": ["./src/*"]` or a `baseUrl`, every entry of that directory is
-local (`helpers`, `helpers/download`), and other `paths` keys like `@app/*` are taken as they are, unless they
-map into `node_modules`.
-A bare Node built-in name like `http` stays builtin, as in v3. The `tsconfig` option points to another directory or
-tsconfig file, for example `oxfmt({ tsconfig: 'tsconfig.app.json' })`.
 Formatting is enforced by the `stylistic/*` lint rules; oxfmt and Prettier are on-demand tools whose output
 passes those rules. Per-directory formatting differences go through oxfmt `overrides` or a nested
 `oxfmt.config.ts`.
@@ -136,10 +152,8 @@ passes those rules. Per-directory formatting differences go through oxfmt `overr
 - `ignorePatterns` belong to the config that governs a file: they are not inherited through `extends`, and the
   root config's patterns do not reach files under a package with its own config. v3's mocha block ignored
   `__snapshots__` directories; a package with snapshot files adds `ignorePatterns: ['**/__snapshots__']` itself.
-- A package whose tsconfig has its own `paths` gets an `oxfmt.config.ts` with
-  `defineConfig(oxfmt({ tsconfig: import.meta.dirname }))`. One `oxfmt` run from the root applies it to the
-  files below it, but loads it with the root as the current directory,
-  so without the option it would read the root's tsconfig.
+- A package whose tsconfig has its own `paths` passes `oxlint({ tsconfig: import.meta.dirname })`.
+  One `oxlint` run from the root loads every config from there, so without the option it would read the root's tsconfig.
 
 ```json
 {
@@ -177,8 +191,8 @@ Why v4 works the way it does, with the reasons for each decision: [ADR 1](docs/a
 | `trailingComma: 'es5'` in the Prettier export | `'all'`; the `comma-dangle` lint rule accepts both styles |
 | `@stylistic/*` rules | same rules, `stylistic/*` under oxlint; `jsx-self-closing-comp` and `jsx-curly-brace-presence` became `react/*` |
 | `@stylistic/generator-star-spacing`, `yield-star-spacing` | now `after` (`function* f`), what oxfmt and Prettier print |
-| `import/order` | oxfmt's `sortImports`, on demand. Local absolute imports come from the tsconfig, not from `eslint-import-resolver-typescript`, see above |
-| `'import/order': 'off'` in a package config | `sortImports: false` in that package's `oxfmt.config.ts`: `defineConfig({ ...oxfmt({ tsconfig: import.meta.dirname }), sortImports: false })`. Where imports form a cycle, their order decides which module runs first, so sorting can break the app |
+| `import/order` | `perfectionist/sort-imports`, in the editor and in CI as before, `oxlint --fix` sorts. oxfmt doesn't sort imports. Local absolute imports come from the tsconfig, not from `eslint-import-resolver-typescript`, see [Import order](#import-order) |
+| `'import/order': 'off'` in a package config | `oxlint({ sortImports: false })` in that package's `oxlint.config.ts`. Where imports form a cycle, their order decides which module runs first, so sorting can break the app |
 | `react/jsx-no-bind` | removed |
 | `react/prop-types`, `react/no-deprecated` | not implemented by oxlint; the rest of eslint-plugin-react recommended is |
 | `check-file/filename-naming-convention` | same rule and globs, [eslint-plugin-check-file](https://github.com/dukeluo/eslint-plugin-check-file) 2.x to 3.3 as a JS plugin; acronyms (`AIPanel.tsx`) stay valid, a camelCase `.tsx` file that 2.x let through is reported |

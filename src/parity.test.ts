@@ -48,6 +48,7 @@ const renamed: Record<string, string[]> = {
   '@stylistic/jsx-self-closing-comp': ['react/self-closing-comp'],
   '@stylistic/jsx-curly-brace-presence': ['react/jsx-curly-brace-presence'],
   camelcase: ['eslint-js/camelcase'],
+  'import/order': ['perfectionist/sort-imports'],
   // eslint-plugin-mocha 10 to 12
   'mocha/no-async-describe': ['mocha/no-async-suite'],
   'mocha/no-global-tests': ['mocha/no-top-level-tests'],

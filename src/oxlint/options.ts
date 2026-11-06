@@ -65,6 +65,20 @@ export type OxlintOptions = {
    */
   typeAwareJs?: boolean | string[];
   /**
+   * directory or tsconfig file whose `paths` define the local absolute imports.
+   * in a monorepo, pass `import.meta.dirname` in each package's oxlint.config.ts,
+   * because oxlint loads nested configs with the root as the current directory
+   * @default the nearest tsconfig.json from the current directory up
+   */
+  tsconfig?: string;
+  /**
+   * report import order and groups in the editor and in CI, as `import/order` did in v3.
+   * set to false in a package whose imports must stay in their order, for example because of import cycles,
+   * where import order decides which module runs first
+   * @default true
+   */
+  sortImports?: boolean;
+  /**
    * oxlint's built-in jsx-a11y rules
    * @default false
    */
@@ -88,6 +102,8 @@ export function resolveOptions(options: OxlintOptions): ResolvedOptions {
     typeChecked: options.typeChecked ?? false,
     fullCorrectness: options.fullCorrectness ?? false,
     typeAwareJs: options.typeAwareJs ?? false,
+    tsconfig: options.tsconfig ?? process.cwd(),
+    sortImports: options.sortImports ?? true,
     a11y: options.a11y ?? false,
   };
 }

@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import { test } from 'node:test';
 
-import { runOxlint } from './smoke-helpers.js';
+import { fixturesRoot, runOxlint } from './smoke-helpers.js';
 
 const list = (found: Set<string>) => [...found].sort().join('\n  ');
 const has = (found: Set<string>, entry: string) =>
@@ -43,6 +44,24 @@ test('typeAwareJs extends type-aware rules to js files, fullCorrectness turns on
   const full = runOxlint('base', { options: { fullCorrectness: true } });
   has(full, 'src/unbound.ts:typescript/unbound-method');
   lacks(full, 'src/forIn.js:typescript/no-for-in-array');
+});
+
+test('import order: reported as in v3, off with sortImports: false or an inline comment', () => {
+  const found = runOxlint('base');
+  has(found, 'src/importOrder.ts:perfectionist/sort-imports');
+  // v3's groups in v3's order, a side-effect import among them
+  cleanFile(found, 'src/importGroups.ts');
+  cleanFile(found, 'src/importDisabled.ts');
+  // without the tsconfig, `helpers/download` is an npm package and sorted before `react`
+  cleanFile(found, 'src/importLocal.ts');
+  lacks(
+    runOxlint('base', { options: { sortImports: false } }),
+    'src/importOrder.ts:perfectionist/sort-imports',
+  );
+  has(
+    runOxlint('base', { options: { tsconfig: path.join(fixturesRoot, 'tsconfig-paths', 'app') } }),
+    'src/importLocal.ts:perfectionist/sort-imports',
+  );
 });
 
 test('react config: file naming, hooks and jsx quotes; react rules stay out of plain ts files', () => {
