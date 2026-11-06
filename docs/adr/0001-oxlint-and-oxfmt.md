@@ -23,8 +23,8 @@ oxfmt, from the same project, formats JS and TS exactly like Prettier 3.
 
 - **oxlint runs the lint.** Rules it doesn't have come from the original ESLint plugins, which oxlint runs as well:
   - `@stylistic` for code style
-  - [perfectionist](https://github.com/azat-io/eslint-plugin-perfectionist) for sorting names inside `{ }`
-    in imports and exports
+  - [perfectionist](https://github.com/azat-io/eslint-plugin-perfectionist) for import order,
+    and for sorting names inside `{ }` in imports and exports
   - typescript-eslint's `naming-convention`, through a small wrapper
   - ESLint's `camelcase` and `no-octal`,
     through [oxlint-plugin-eslint](https://github.com/oxc-project/oxc/tree/main/npm/oxlint-plugin-eslint)
@@ -54,6 +54,7 @@ oxfmt, from the same project, formats JS and TS exactly like Prettier 3.
   - the `cypress` option, replaced by `playwright`
   - `react/no-deprecated`: oxlint doesn't have it, so calls to deprecated React APIs are no longer flagged
   - `@stylistic/jsx-props-no-multi-spaces`: it crashes under oxlint, so only oxfmt removes double spaces in JSX props
+  - the `**/*.less` glob of the file naming rule: it never ran, because neither ESLint nor oxlint reads `.less` files
 - **Off by default:**
   - jsx-a11y, because it reports 600 findings on our three React packages
   - the React Compiler rules, which only make sense once a project uses the compiler
@@ -86,6 +87,9 @@ oxfmt, from the same project, formats JS and TS exactly like Prettier 3.
   but a tsconfig path like `"*": ["./src/*"]` makes it a local file. v3 knew this through
   [eslint-import-resolver-typescript](https://github.com/import-js/eslint-import-resolver-typescript).
   So `oxlint()` reads the tsconfig itself and lists the names.
+  It starts at the config file that calls it, found with `util.getCallSites()`,
+  so each package in a monorepo gets its own.
+  An option for this would be easy to forget, and `oxlint --fix` would then sort local imports in with npm packages.
 - **The tsconfig is read with [get-tsconfig](https://github.com/privatenumber/get-tsconfig).**
   [TypeScript](https://github.com/microsoft/TypeScript)'s own API for that no longer exists in TypeScript 7.0,
   and 7.1 replaces it with a different one. This way the config loads with any TypeScript version.
@@ -123,13 +127,14 @@ oxfmt, from the same project, formats JS and TS exactly like Prettier 3.
 - **A package that had `import/order` off** sets `oxlint({ sortImports: false })`, for example because of import cycles.
   In a cycle, import order decides which module runs first.
 - **`oxlint --fix` can move an import across a side-effect import.** The rule keeps side-effect imports in place,
-  but not the imports around them. On 3,318 files of our largest project that never happened.
-  A single import can opt out with a disable comment.
+  but not the imports around them. v3 reported those cases and left the fix to a person.
+  On our largest project it never happened. A single import can opt out with a disable comment.
+- **`require` calls come after all imports and keep their own order**, because that order decides what runs first.
+  v3 also sorted them among themselves. That check is gone.
 - **Projects drop `prettier` from their dependencies.**
   A code generator that runs `prettier --write` should run `oxfmt` instead.
 - **In a monorepo, each package keeps its own `oxlint.config.ts`.**
-  A package with its own tsconfig `paths` passes `oxlint({ tsconfig: import.meta.dirname })`.
-  oxlint runs from the root directory, so `oxlint()` can't find the package's tsconfig alone.
+  Nothing else is needed per package.
 - **Node `>=22.18.0`.** oxlint refuses `oxlint.config.ts` on older versions.
 
 ## Later
