@@ -31,6 +31,8 @@ test('base config: naming, camelcase, stylistic, perfectionist and the type-awar
   lacks(found, 'src/legacy.js:radix');
   lacks(found, 'src/legacy.js:eslint-js/radix');
   cleanFile(found, 'src/clean.ts');
+  // multi-line unions as oxfmt prints them, which stylistic/indent rejected
+  cleanFile(found, 'src/unionIndent.ts');
   // type-aware rules run on ts files only, and only no-for-in-array by default
   lacks(found, 'src/forIn.js:typescript/no-for-in-array');
   lacks(found, 'src/unbound.ts:typescript/unbound-method');

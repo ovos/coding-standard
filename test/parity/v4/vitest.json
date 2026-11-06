@@ -476,7 +476,8 @@
               "CallExpression > .typeArguments",
               "ConditionalExpression *",
               "ArrowFunctionExpression",
-              "TemplateLiteral *"
+              "TemplateLiteral *",
+              "TSUnionType *"
             ]
           }
         ]

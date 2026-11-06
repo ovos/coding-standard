@@ -58,6 +58,8 @@ export function stylisticRules(indent: Indent): Rules {
           'ConditionalExpression *',
           'ArrowFunctionExpression',
           'TemplateLiteral *',
+          // the rule rejects what oxfmt and prettier print for object types inside a multi-line union
+          'TSUnionType *',
         ],
       },
     ],

@@ -137,8 +137,8 @@ export default prettier;
 
 Both exports share one base: `printWidth: 100`, `singleQuote`, `trailingComma: 'all'`, indent from the option.
 Formatting is enforced by the `stylistic/*` lint rules; oxfmt and Prettier are on-demand tools whose output
-passes those rules. Per-directory formatting differences go through oxfmt `overrides` or a nested
-`oxfmt.config.ts`.
+passes those rules, so format-on-save works alongside the lint.
+Per-directory formatting differences go through oxfmt `overrides` or a nested `oxfmt.config.ts`.
 
 ## Monorepos
 
