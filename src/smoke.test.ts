@@ -142,4 +142,8 @@ test('monorepo: root and package configs both extend the shared config, one plug
   cleanFile(found, 'src/Root.tsx');
   has(found, 'packages/app/src/App.tsx:react-hooks/exhaustive-deps');
   has(found, 'packages/app/src/forIn.ts:typescript/no-for-in-array');
+  // the package's own tsconfig decides what a local import is, without any option in its config
+  cleanFile(found, 'packages/app/src/importLocal.ts');
+  // a relative `tsconfig` option starts at the package's config file, not at the root
+  cleanFile(found, 'packages/custom/src/importLocal.ts');
 });

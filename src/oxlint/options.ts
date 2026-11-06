@@ -1,3 +1,7 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { getCallSites } from 'node:util';
+
 export type OxlintOptions = {
   /**
    * whether to ban or allow console usage. 'ban-log' allows console.error/warn/info
@@ -65,10 +69,9 @@ export type OxlintOptions = {
    */
   typeAwareJs?: boolean | string[];
   /**
-   * directory or tsconfig file whose `paths` define the local absolute imports.
-   * in a monorepo, pass `import.meta.dirname` in each package's oxlint.config.ts,
-   * because oxlint loads nested configs with the root as the current directory
-   * @default the nearest tsconfig.json from the current directory up
+   * directory or tsconfig file whose `paths` define the local absolute imports, for example `tsconfig.app.json`.
+   * a relative path starts at the config file that calls `oxlint()`
+   * @default the nearest tsconfig.json from the config file that calls `oxlint()` up
    */
   tsconfig?: string;
   /**
@@ -87,6 +90,21 @@ export type OxlintOptions = {
 
 export type ResolvedOptions = Required<OxlintOptions>;
 
+const packageRoot = fileURLToPath(new URL('../..', import.meta.url));
+
+// the directory of the config file that called `oxlint()`, so that each package in a monorepo gets its own tsconfig.
+// oxlint loads nested configs with the root as the current directory, so `process.cwd()` can't tell them apart.
+// a forgotten option there would mix local imports with npm packages, and `oxlint --fix` would sort them that way
+function callingConfigDirectory(): string {
+  for (const { scriptName } of getCallSites()) {
+    // a config file is always a file URL, also a CommonJS one, because oxlint loads it with `import()`
+    if (!scriptName.startsWith('file:')) continue;
+    const file = fileURLToPath(scriptName);
+    if (!file.startsWith(packageRoot)) return path.dirname(file);
+  }
+  return process.cwd();
+}
+
 export function resolveOptions(options: OxlintOptions): ResolvedOptions {
   const react = options.react ?? false;
   return {
@@ -102,7 +120,7 @@ export function resolveOptions(options: OxlintOptions): ResolvedOptions {
     typeChecked: options.typeChecked ?? false,
     fullCorrectness: options.fullCorrectness ?? false,
     typeAwareJs: options.typeAwareJs ?? false,
-    tsconfig: options.tsconfig ?? process.cwd(),
+    tsconfig: path.resolve(callingConfigDirectory(), options.tsconfig ?? ''),
     sortImports: options.sortImports ?? true,
     a11y: options.a11y ?? false,
   };
